@@ -1,0 +1,360 @@
+@model AdvancedVotingSystem.Models.Election
+@{
+    ViewData["Title"] = "هيكل الانتخابات - " + Model.Name;
+}
+
+<!-- Page Header -->
+<div class="page-header">
+    <div>
+        <h1 class="page-title flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center">
+                <i class="fas fa-sitemap text-white"></i>
+            </div>
+            إعداد الهيكل: @Model.Name
+        </h1>
+        <p class="page-subtitle">إدارة المقاعد والمرشحين لهذه الانتخابات</p>
+    </div>
+    <div class="flex gap-3">
+        @if (Model.Type != AdvancedVotingSystem.Models.Enums.ElectionType.Bylaw)
+        {
+            <button onclick="openPositionModal()" class="ant-btn ant-btn-primary">
+                <i class="fas fa-plus"></i>
+                @(Model.Type == AdvancedVotingSystem.Models.Enums.ElectionType.GeneralAssembly ? "إضافة درجة/فئة جديدة" : "إضافة مقعد جديد")
+            </button>
+        }
+        <a asp-action="Index" class="ant-btn ant-btn-default">
+            <i class="fas fa-arrow-right"></i>
+            رجوع
+        </a>
+    </div>
+</div>
+
+@if (Model.Type == AdvancedVotingSystem.Models.Enums.ElectionType.Bylaw)
+{
+    <!-- Bylaw Upload Section -->
+    <div class="ant-card mb-6">
+        <div class="ant-card-body flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <h3 class="text-lg font-bold text-gray-800 mb-2 flex items-center gap-2">
+                    <i class="fas fa-file-pdf text-danger-500"></i>
+                    لائحة الانتخابات (PDF)
+                </h3>
+                @if (!string.IsNullOrEmpty(Model.BylawPdfPath))
+                {
+                    <span class="ant-tag ant-tag-success"><span class="ant-tag-dot bg-success-500"></span> تم رفع اللائحة بنجاح</span>
+                    <a href="@Model.BylawPdfPath" target="_blank" class="text-primary-500 hover:underline text-sm font-bold mr-3">عرض الملف الحالي</a>
+                }
+                else
+                {
+                    <span class="ant-tag ant-tag-danger"><span class="ant-tag-dot bg-danger-500"></span> لا توجد لائحة مرفوعة</span>
+                }
+            </div>
+            <form asp-action="UploadBylaw" method="post" enctype="multipart/form-data" class="flex items-center gap-3">
+                <input type="hidden" name="electionId" value="@Model.Id" />
+                <input type="file" name="bylawFile" accept="application/pdf" required class="ant-form-control !py-2 !text-sm !w-auto" />
+                <button type="submit" class="ant-btn ant-btn-primary ant-btn-sm">
+                    <i class="fas fa-upload"></i> رفع / تحديث
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="ant-alert ant-alert-info mb-8">
+        <i class="fas fa-info-circle mt-0.5"></i>
+        <span>هذه الانتخابات مخصصة للتصويت على لائحة (موافق/غير موافق) بناءً على الملف المرفوع أعلاه.</span>
+    </div>
+}
+else
+{
+    <!-- Tabs Navigation -->
+    <div class="ant-card mb-6">
+        <div class="px-5 pt-3 border-b border-gray-100">
+            <nav class="-mb-px flex space-x-reverse space-x-1 overflow-x-auto" aria-label="Tabs">
+                @foreach (var position in Model.Positions)
+                {
+                    var isFirst = position == Model.Positions.First();
+                    <button onclick="switchTab('tab-@position.Id')" id="btn-tab-@position.Id"
+                            class="tab-button whitespace-nowrap py-3 px-4 border-b-3 font-bold text-sm transition-all rounded-t-lg @(isFirst ? "border-primary-500 text-primary-600 bg-primary-50/50" : "border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50")">
+                        @position.Name
+                        <span class="mr-2 bg-gray-100 text-gray-600 rounded-full px-2.5 py-0.5 text-xs font-bold">@position.Candidates.Count()</span>
+                    </button>
+                }
+            </nav>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="ant-card-body">
+            @foreach (var position in Model.Positions)
+            {
+                var isFirst = position == Model.Positions.First();
+                <div id="tab-@position.Id" class="tab-pane @(isFirst ? "block" : "hidden")">
+                    <!-- Tab Toolbar -->
+                    <div class="flex flex-col sm:flex-row justify-between items-center mb-6 bg-gray-50 p-4 rounded-xl gap-4">
+                        <div class="flex items-center gap-3">
+                            <span class="ant-tag ant-tag-warning">
+                                <i class="fas fa-bullseye text-xs"></i>
+                                العدد المطلوب: @position.RequiredCount
+                            </span>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="openExcelModal(@position.Id, '@position.Name')" class="ant-btn ant-btn-success ant-btn-sm">
+                                <i class="fas fa-file-excel"></i> استيراد من إكسيل
+                            </button>
+                            <button onclick="openCandidateModal(@position.Id, '@position.Name')" class="ant-btn ant-btn-primary ant-btn-sm">
+                                <i class="fas fa-plus"></i> إضافة مرشح
+                            </button>
+                        </div>
+                    </div>
+
+                    @if (position.Candidates.Any())
+                    {
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                            @foreach (var candidate in position.Candidates)
+                            {
+                                <div class="ant-card group relative !rounded-xl">
+                                    <button onclick="openEditCandidateModal(@candidate.Id, '@Html.Raw(candidate.Name.Replace("'", "\\'"))', '@Html.Raw(candidate.Title?.Replace("'", "\\'"))', '@Html.Raw(candidate.Nickname?.Replace("'", "\\'"))', '@(candidate.CandidateNumber?.ToString() ?? "")')"
+                                            class="absolute top-3 left-3 z-10 text-gray-400 hover:text-primary-500 bg-white hover:bg-primary-50 p-2 rounded-lg transition-all opacity-0 group-hover:opacity-100 shadow-sm border border-gray-100">
+                                        <i class="fas fa-pen text-xs"></i>
+                                    </button>
+
+                                    <div class="ant-card-body flex items-center gap-4 !p-4">
+                                        <div class="shrink-0">
+                                            @if (!string.IsNullOrEmpty(candidate.ImagePath))
+                                            {
+                                                <img src="@candidate.ImagePath" class="w-16 h-16 rounded-xl object-cover border-2 border-gray-100 shadow-sm" alt="@candidate.Name" />
+                                            }
+                                            else
+                                            {
+                                                <div class="w-16 h-16 rounded-xl gradient-primary flex items-center justify-center text-white text-xl font-black">
+                                                    @candidate.Name.FirstOrDefault()
+                                                </div>
+                                            }
+                                        </div>
+
+                                        <div class="flex flex-col flex-grow min-w-0">
+                                            @if (!string.IsNullOrEmpty(candidate.Title))
+                                            {
+                                                <span class="text-[11px] font-bold text-gray-400 truncate">@candidate.Title</span>
+                                            }
+                                            <span class="font-black text-gray-900 text-sm truncate leading-tight mt-0.5" title="@candidate.Name">@candidate.Name</span>
+
+                                            <div class="flex flex-wrap items-center gap-1 mt-2">
+                                                @if (candidate.CandidateNumber.HasValue)
+                                                {
+                                                    <span class="text-[10px] bg-purple-50 text-purple-600 px-1.5 py-0.5 rounded-md border border-purple-100 font-bold">رقم: @candidate.CandidateNumber</span>
+                                                }
+                                                @if (!string.IsNullOrEmpty(candidate.Nickname))
+                                                {
+                                                    <span class="text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded-md border border-blue-100 font-bold">@candidate.Nickname</span>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="ant-empty">
+                            <i class="fas fa-user-plus ant-empty-icon text-6xl"></i>
+                            <p class="ant-empty-text">لا يوجد مرشحين حتى الآن</p>
+                            <p class="text-sm text-gray-400">اضغط على إضافة مرشح أو استيراد من إكسيل للبدء.</p>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+}
+
+<!-- Position Modal -->
+<div id="positionModal" class="ant-modal-overlay hidden" style="display:none;">
+    <div class="ant-modal">
+        <div class="ant-modal-header">
+            <h3 class="text-lg font-black text-gray-900">@(Model.Type == AdvancedVotingSystem.Models.Enums.ElectionType.GeneralAssembly ? "إضافة درجة/فئة جديدة" : "إضافة مقعد انتخابي جديد")</h3>
+        </div>
+        <div class="ant-modal-body">
+            <form asp-action="AddPosition" method="post" class="space-y-4">
+                <input type="hidden" name="electionId" value="@Model.Id" />
+                <div class="ant-form-item">
+                    <label class="ant-form-label">@(Model.Type == AdvancedVotingSystem.Models.Enums.ElectionType.GeneralAssembly ? "اسم الدرجة" : "اسم المقعد")</label>
+                    <input type="text" name="name" required class="ant-form-control" />
+                </div>
+                <div class="ant-form-item">
+                    <label class="ant-form-label">@(Model.Type == AdvancedVotingSystem.Models.Enums.ElectionType.GeneralAssembly ? "إجمالي عدد الأعضاء" : "العدد المطلوب انتخابه")</label>
+                    <input type="number" name="requiredCount" min="1" value="1" required class="ant-form-control" />
+                </div>
+                <div class="flex justify-end gap-3 pt-2">
+                    <button type="button" onclick="closePositionModal()" class="ant-btn ant-btn-default">إلغاء</button>
+                    <button type="submit" class="ant-btn ant-btn-primary">حفظ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Candidate Modal -->
+<div id="candidateModal" class="ant-modal-overlay hidden" style="display:none;">
+    <div class="ant-modal">
+        <div class="ant-modal-header">
+            <div>
+                <h3 class="text-lg font-black text-gray-900">@(Model.Type == AdvancedVotingSystem.Models.Enums.ElectionType.GeneralAssembly ? "إضافة عضو" : "إضافة مرشح")</h3>
+                <p class="text-sm text-gray-500 mt-1">المقعد: <span id="modalPositionName" class="text-primary-500 font-bold"></span></p>
+            </div>
+        </div>
+        <div class="ant-modal-body">
+            <form asp-action="AddCandidate" method="post" enctype="multipart/form-data" class="space-y-4">
+                <input type="hidden" name="electionId" value="@Model.Id" />
+                <input type="hidden" name="positionId" id="modalPositionId" value="" />
+                <div class="ant-form-item">
+                    <label class="ant-form-label">الاسم الثلاثي أو الرباعي <span class="text-danger-500">*</span></label>
+                    <input type="text" name="name" required class="ant-form-control" />
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="ant-form-item">
+                        <label class="ant-form-label">اللقب</label>
+                        <input type="text" name="title" class="ant-form-control" />
+                    </div>
+                    <div class="ant-form-item">
+                        <label class="ant-form-label">اسم الشهرة</label>
+                        <input type="text" name="nickname" class="ant-form-control" />
+                    </div>
+                </div>
+                <div class="ant-form-item">
+                    <label class="ant-form-label">رقم المرشح</label>
+                    <input type="number" name="candidateNumber" class="ant-form-control" />
+                </div>
+                <div class="ant-form-item">
+                    <label class="ant-form-label">صورة المرشح</label>
+                    <input type="file" name="candidateImage" accept="image/*" class="ant-form-control !py-2" />
+                </div>
+                <div class="flex justify-end gap-3 pt-2">
+                    <button type="button" onclick="closeCandidateModal()" class="ant-btn ant-btn-default">إلغاء</button>
+                    <button type="submit" class="ant-btn ant-btn-success">حفظ المرشح</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Candidate Modal -->
+<div id="editCandidateModal" class="ant-modal-overlay hidden" style="display:none;">
+    <div class="ant-modal">
+        <div class="ant-modal-header">
+            <h3 class="text-lg font-black text-gray-900">تعديل بيانات المرشح</h3>
+        </div>
+        <div class="ant-modal-body">
+            <form asp-action="EditCandidate" method="post" enctype="multipart/form-data" class="space-y-4">
+                <input type="hidden" name="electionId" value="@Model.Id" />
+                <input type="hidden" name="id" id="editCandidateId" value="" />
+                <div class="ant-form-item">
+                    <label class="ant-form-label">الاسم <span class="text-danger-500">*</span></label>
+                    <input type="text" name="name" id="editCandidateName" required class="ant-form-control" />
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="ant-form-item">
+                        <label class="ant-form-label">اللقب</label>
+                        <input type="text" name="title" id="editCandidateTitle" class="ant-form-control" />
+                    </div>
+                    <div class="ant-form-item">
+                        <label class="ant-form-label">اسم الشهرة</label>
+                        <input type="text" name="nickname" id="editCandidateNickname" class="ant-form-control" />
+                    </div>
+                </div>
+                <div class="ant-form-item">
+                    <label class="ant-form-label">رقم المرشح</label>
+                    <input type="number" name="candidateNumber" id="editCandidateNumber" class="ant-form-control" />
+                </div>
+                <div class="ant-form-item">
+                    <label class="ant-form-label">صورة المرشح (اتركه فارغاً لعدم التغيير)</label>
+                    <input type="file" name="candidateImage" accept="image/*" class="ant-form-control !py-2" />
+                </div>
+                <div class="flex justify-end gap-3 pt-2">
+                    <button type="button" onclick="closeEditCandidateModal()" class="ant-btn ant-btn-default">إلغاء</button>
+                    <button type="submit" class="ant-btn ant-btn-primary">تحديث المرشح</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Excel Import Modal -->
+<div id="excelModal" class="ant-modal-overlay hidden" style="display:none;">
+    <div class="ant-modal">
+        <div class="ant-modal-header">
+            <div class="flex justify-between items-center w-full">
+                <h3 class="text-lg font-black text-gray-900">الرفع المجمع عبر Excel</h3>
+                <a asp-action="DownloadExcelTemplate" class="ant-btn ant-btn-success ant-btn-sm">
+                    <i class="fas fa-download"></i> تحميل نموذج
+                </a>
+            </div>
+        </div>
+        <div class="ant-modal-body">
+            <p class="text-sm text-gray-500 mb-4">المقعد: <span id="excelModalPositionName" class="text-success-600 font-bold"></span></p>
+            <form asp-action="ImportCandidatesExcel" method="post" enctype="multipart/form-data" class="space-y-4">
+                <input type="hidden" name="electionId" value="@Model.Id" />
+                <input type="hidden" name="positionId" id="excelModalPositionId" value="" />
+                <div class="ant-form-item">
+                    <label class="ant-form-label">ملف الإكسيل (.xlsx)</label>
+                    <input type="file" name="excelFile" accept=".xlsx" required class="ant-form-control !py-2" />
+                </div>
+                <div class="ant-form-item">
+                    <label class="ant-form-label">صور المرشحين (حدد كل الصور معاً)</label>
+                    <input type="file" name="candidateImages" accept="image/*" multiple class="ant-form-control !py-2" />
+                    <p class="text-xs text-gray-400 mt-1">يجب أن تتطابق أسماء الصور مع عمود "اسم الصورة" في الإكسيل.</p>
+                </div>
+                <div class="flex justify-end gap-3 pt-2">
+                    <button type="button" onclick="closeExcelModal()" class="ant-btn ant-btn-default">إلغاء</button>
+                    <button type="submit" class="ant-btn ant-btn-success">بدء الاستيراد</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function openPositionModal() { gsapOpenModal('positionModal'); }
+    function closePositionModal() { gsapCloseModal('positionModal'); }
+
+    function openCandidateModal(posId, posName) {
+        document.getElementById('modalPositionId').value = posId;
+        document.getElementById('modalPositionName').textContent = posName;
+        gsapOpenModal('candidateModal');
+    }
+    function closeCandidateModal() { gsapCloseModal('candidateModal'); }
+
+    function openEditCandidateModal(id, name, title, nickname, candidateNumber) {
+        document.getElementById('editCandidateId').value = id;
+        document.getElementById('editCandidateName').value = name;
+        document.getElementById('editCandidateTitle').value = title || '';
+        document.getElementById('editCandidateNickname').value = nickname || '';
+        document.getElementById('editCandidateNumber').value = candidateNumber || '';
+        gsapOpenModal('editCandidateModal');
+    }
+    function closeEditCandidateModal() { gsapCloseModal('editCandidateModal'); }
+
+    function openExcelModal(posId, posName) {
+        document.getElementById('excelModalPositionId').value = posId;
+        document.getElementById('excelModalPositionName').textContent = posName;
+        gsapOpenModal('excelModal');
+    }
+    function closeExcelModal() { gsapCloseModal('excelModal'); }
+
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-pane').forEach(el => { el.classList.remove('block'); el.classList.add('hidden'); });
+        document.querySelectorAll('.tab-button').forEach(el => {
+            el.classList.remove('border-primary-500', 'text-primary-600', 'bg-primary-50/50');
+            el.classList.add('border-transparent', 'text-gray-500');
+        });
+        document.getElementById(tabId).classList.remove('hidden');
+        document.getElementById(tabId).classList.add('block');
+        const btn = document.getElementById('btn-' + tabId);
+        if(btn) {
+            btn.classList.remove('border-transparent', 'text-gray-500');
+            btn.classList.add('border-primary-500', 'text-primary-600', 'bg-primary-50/50');
+        }
+    }
+</script>
+}

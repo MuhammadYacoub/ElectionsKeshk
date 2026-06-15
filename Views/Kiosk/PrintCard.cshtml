@@ -1,0 +1,65 @@
+@model AdvancedVotingSystem.Models.Voter
+@{
+    Layout = "_KioskLayout";
+    ViewData["Title"] = "ملخص التصويت";
+}
+
+<div class="flex items-center justify-center" style="min-height: 80vh;">
+    <div class="w-full max-w-2xl text-center">
+        <!-- Success Banner -->
+        <div class="bg-success-500/20 border border-success-500/30 rounded-3xl p-8 mb-8 backdrop-blur-sm" data-gsap="fade-up">
+            <div class="w-20 h-20 rounded-full bg-success-500 flex items-center justify-center mx-auto mb-5">
+                <i class="fas fa-check text-white text-4xl"></i>
+            </div>
+            <h1 class="text-4xl font-black text-success-400 mb-3">تم تسجيل تصويتك بنجاح!</h1>
+            <p class="text-white/60 text-xl font-medium">شكراً لمشاركتكم.</p>
+        </div>
+
+        <!-- Vote Summary -->
+        <div class="bg-white/10 backdrop-blur-xl rounded-3xl p-8 border border-white/20 text-right mb-6" data-gsap="fade-up">
+            <h3 class="text-xl font-black text-white mb-5 pb-3 border-b border-white/10 flex items-center gap-2">
+                <i class="fas fa-clipboard-list text-accent-500"></i> ملخص ما قمت باختياره
+            </h3>
+            @if (Model.VoteRecords.Any())
+            {
+                var groupedVotes = Model.VoteRecords.GroupBy(vr => vr.Candidate.Position.Name);
+                foreach (var group in groupedVotes)
+                {
+                    <h4 class="text-accent-400 font-bold text-lg mt-5 mb-3">@group.Key</h4>
+                    <div class="space-y-2">
+                        @foreach (var vote in group)
+                        {
+                            <div class="flex items-center gap-3 bg-white/5 rounded-xl px-4 py-3">
+                                <i class="fas fa-check-circle text-success-400"></i>
+                                <span class="text-white font-bold">@vote.Candidate.Name</span>
+                            </div>
+                        }
+                    </div>
+                }
+            }
+            else
+            {
+                <p class="text-amber-400 text-lg font-bold">لم تقم باختيار أي مرشحين.</p>
+            }
+        </div>
+
+        <button class="bg-white/10 border border-white/20 text-white font-bold py-4 px-8 rounded-2xl text-lg hover:bg-white/20 transition-all mb-4" onclick="window.print()">
+            <i class="fas fa-print ml-2"></i> طباعة إيصال التصويت
+        </button>
+
+        <p class="text-white/40 text-lg font-medium mt-6">
+            سيتم إغلاق هذه الشاشة تلقائياً خلال <span id="countdown" class="text-accent-500 font-black text-2xl">10</span> ثوانٍ.
+        </p>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let seconds = 10;
+        setInterval(function() {
+            seconds--;
+            document.getElementById('countdown').innerText = seconds;
+            if (seconds <= 0) window.location.href = '/';
+        }, 1000);
+    </script>
+}

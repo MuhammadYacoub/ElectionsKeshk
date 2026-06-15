@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: voting-sqlserver
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=VotingSystem@2026!
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    restart: unless-stopped
+    healthcheck:
+      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "VotingSystem@2026!" -Q "SELECT 1" -C -No || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: voting-web
+    ports:
+      - "7777:7777"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:7777
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=AdvancedVotingDB;User Id=sa;Password=VotingSystem@2026!;TrustServerCertificate=True;
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  sqlserver-data:

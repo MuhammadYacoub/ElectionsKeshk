@@ -1,0 +1,56 @@
+@model AdvancedVotingSystem.Controllers.CreateSupervisorViewModel
+@{
+    ViewData["Title"] = "إضافة مشرف جديد";
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl gradient-accent flex items-center justify-center"><i class="fas fa-user-plus text-white"></i></div>
+            إضافة مشرف جديد
+        </h1>
+        <p class="page-subtitle">تكوين حساب مشرف أو رئيس لجنة جديد</p>
+    </div>
+    <div class="flex gap-3">
+        <button type="submit" form="supervisorForm" class="ant-btn ant-btn-primary"><i class="fas fa-plus"></i> إضافة الحساب</button>
+        <a asp-action="Index" class="ant-btn ant-btn-default"><i class="fas fa-arrow-right"></i> عودة</a>
+    </div>
+</div>
+
+<form asp-action="Create" method="post" id="supervisorForm">
+    @Html.AntiForgeryToken()
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-5">
+        <div class="lg:col-span-3 ant-card">
+            <div class="ant-card-head"><h3 class="ant-card-head-title flex items-center gap-2"><i class="fas fa-user text-primary-500"></i> البيانات الأساسية</h3></div>
+            <div class="ant-card-body">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="ant-form-item"><label asp-for="Surname" class="ant-form-label">اللقب <span class="text-danger-500">*</span></label><select asp-for="Surname" class="ant-select" required><option value="">اختر اللقب...</option><option value="السيد">السيد</option><option value="السيده">السيده</option><option value="المستشار">المستشار</option><option value="المستشاره">المستشاره</option><option value="الاستاذ">الاستاذ</option><option value="الاستاذه">الاستاذه</option></select><span asp-validation-for="Surname" class="text-danger-500 text-xs mt-1 block"></span></div>
+                    <div class="ant-form-item"><label asp-for="FullName" class="ant-form-label">الاسم <span class="text-danger-500">*</span></label><input asp-for="FullName" class="ant-form-control" placeholder="الاسم الكامل" required /><span asp-validation-for="FullName" class="text-danger-500 text-xs mt-1 block"></span></div>
+                    <div class="ant-form-item"><label asp-for="Gender" class="ant-form-label">النوع</label><select asp-for="Gender" class="ant-select"><option value="ذكر">ذكر</option><option value="أنثى">أنثى</option></select></div>
+                    <div class="ant-form-item"><label asp-for="RoleName" class="ant-form-label">الدور <span class="text-danger-500">*</span></label><select asp-for="RoleName" class="ant-select" id="RoleName" required><option value="">اختر الدور...</option><option value="Supervisor">مشرف عام</option><option value="CommitteeHead">رئيس لجنة</option></select><span asp-validation-for="RoleName" class="text-danger-500 text-xs mt-1 block"></span></div>
+                    <div class="ant-form-item col-span-2"><label asp-for="ElectionId" class="ant-form-label">الانتخابات</label><select asp-for="ElectionId" class="ant-select"><option value="">-- غير مرتبط بانتخابات --</option>@if(ViewBag.Elections != null){foreach(var e in ViewBag.Elections as IEnumerable<AdvancedVotingSystem.Models.Election>){<option value="@e.Id">@e.Name</option>}}</select></div>
+                </div>
+            </div>
+        </div>
+        <div class="lg:col-span-2 ant-card" id="loginCard">
+            <div class="ant-card-head"><h3 class="ant-card-head-title flex items-center gap-2"><i class="fas fa-lock text-primary-500"></i> بيانات الدخول</h3></div>
+            <div class="ant-card-body space-y-5">
+                <div class="ant-form-item"><label asp-for="NationalId" class="ant-form-label">الرقم القومي <span class="text-danger-500">*</span></label><input asp-for="NationalId" class="ant-form-control" id="NationalId" placeholder="مثال: 29012345678901" /><span asp-validation-for="NationalId" class="text-danger-500 text-xs mt-1 block"></span></div>
+                <div class="ant-form-item"><label asp-for="Password" class="ant-form-label">كلمة المرور <span class="text-danger-500">*</span></label><input asp-for="Password" type="password" id="Password" class="ant-form-control" placeholder="••••••••" /><span asp-validation-for="Password" class="text-danger-500 text-xs mt-1 block"></span></div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const roleSelect = document.getElementById("RoleName");
+        const loginCard = document.getElementById("loginCard");
+        const nid = document.getElementById("NationalId");
+        const pw = document.getElementById("Password");
+        function toggle() { if (roleSelect.value === "CommitteeHead") { loginCard.style.display = "block"; nid.required = true; pw.required = true; } else { loginCard.style.display = "none"; nid.required = false; pw.required = false; nid.value = ""; pw.value = ""; } }
+        roleSelect.addEventListener("change", toggle); toggle();
+    });
+</script>
+}

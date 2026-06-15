@@ -1,0 +1,164 @@
+@model AdvancedVotingSystem.Models.Election
+@{
+    ViewData["Title"] = "إضافة انتخابات جديدة";
+}
+
+<!-- Page Header -->
+<div class="page-header">
+    <div>
+        <h1 class="page-title flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center">
+                <i class="fas fa-plus-circle text-white"></i>
+            </div>
+            إضافة انتخابات جديدة
+        </h1>
+        <p class="page-subtitle">تكوين انتخابات جديدة للنظام</p>
+    </div>
+    <div class="flex items-center gap-3">
+        <button type="submit" form="electionForm" class="ant-btn ant-btn-primary" id="saveBtn" onclick="handleSave()">
+            <i class="fas fa-save" id="btnIcon"></i>
+            <span id="btnText">حفظ الانتخابات</span>
+        </button>
+        <a asp-action="Index" class="ant-btn ant-btn-default">
+            <i class="fas fa-arrow-right"></i>
+            عودة للقائمة
+        </a>
+    </div>
+</div>
+
+<form asp-action="Create" enctype="multipart/form-data" id="electionForm">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <!-- Basic Info Card -->
+        <div class="ant-card">
+            <div class="ant-card-head">
+                <h3 class="ant-card-head-title flex items-center gap-2">
+                    <i class="fas fa-info-circle text-primary-500"></i>
+                    البيانات الأساسية
+                </h3>
+            </div>
+            <div class="ant-card-body space-y-5">
+                <div class="ant-form-item">
+                    <label asp-for="Name" class="ant-form-label">الاسم <span class="text-danger-500">*</span></label>
+                    <input asp-for="Name" class="ant-form-control" required placeholder="أدخل اسم الانتخابات" />
+                </div>
+                <div class="ant-form-item">
+                    <label asp-for="Date" class="ant-form-label">تاريخ الانتخاب <span class="text-danger-500">*</span></label>
+                    <input asp-for="Date" type="date" class="ant-form-control" required />
+                </div>
+            </div>
+        </div>
+
+        <!-- Type & Method Card -->
+        <div class="ant-card">
+            <div class="ant-card-head">
+                <h3 class="ant-card-head-title flex items-center gap-2">
+                    <i class="fas fa-sliders-h text-primary-500"></i>
+                    البطلان وطريقة الدخول
+                </h3>
+            </div>
+            <div class="ant-card-body space-y-5">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="ant-form-item">
+                        <label asp-for="InvalidationType" class="ant-form-label">نوع الإبطال</label>
+                        <select asp-for="InvalidationType" class="ant-select" asp-items="Html.GetEnumSelectList<AdvancedVotingSystem.Models.Enums.InvalidationType>()"></select>
+                    </div>
+                    <div class="ant-form-item">
+                        <label asp-for="EntryMethod" class="ant-form-label">طريقة الدخول</label>
+                        <select asp-for="EntryMethod" class="ant-select" asp-items="Html.GetEnumSelectList<AdvancedVotingSystem.Models.Enums.EntryMethod>()"></select>
+                    </div>
+                </div>
+                <div class="ant-form-item">
+                    <label asp-for="Type" class="ant-form-label">نوع الانتخابات</label>
+                    <select asp-for="Type" class="ant-select" asp-items="Html.GetEnumSelectList<AdvancedVotingSystem.Models.Enums.ElectionType>()"></select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Logo Card -->
+        <div class="ant-card">
+            <div class="ant-card-head">
+                <h3 class="ant-card-head-title flex items-center gap-2">
+                    <i class="fas fa-image text-primary-500"></i>
+                    الشعار
+                </h3>
+            </div>
+            <div class="ant-card-body">
+                <div class="ant-upload" onclick="document.getElementById('logoInput').click()">
+                    <input type="file" name="logoFile" id="logoInput" accept="image/*" onchange="previewLogo(event)" class="hidden">
+                    <i class="fas fa-cloud-upload-alt text-4xl text-primary-400 mb-3"></i>
+                    <p class="text-sm font-bold text-gray-600 mb-1">اضغط لتحميل شعار الانتخابات</p>
+                    <p class="text-xs text-gray-400">PNG, JPG, GIF حتى 5MB</p>
+                    <div id="previewContainer" class="mt-5 hidden">
+                        <img id="logoPreview" class="w-24 h-24 rounded-2xl object-cover border-4 border-white shadow-lg mx-auto" src="" alt="Preview">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Card -->
+        <div class="ant-card">
+            <div class="ant-card-head">
+                <h3 class="ant-card-head-title flex items-center gap-2">
+                    <i class="fas fa-cog text-primary-500"></i>
+                    إعدادات إضافية
+                </h3>
+            </div>
+            <div class="ant-card-body">
+                <div class="flex items-center justify-between py-4 border-b border-gray-100">
+                    <div>
+                        <span class="text-sm font-bold text-gray-800">حالة الانتخابات</span>
+                        <p class="text-xs text-gray-400 mt-0.5">تحديد حالة الانتخابات عند الإنشاء</p>
+                    </div>
+                    <select asp-for="Status" class="ant-select !w-36 !py-2 text-sm" asp-items="Html.GetEnumSelectList<AdvancedVotingSystem.Models.Enums.ElectionStatus>()"></select>
+                </div>
+
+                <div class="flex items-center justify-between py-4 border-b border-gray-100">
+                    <div>
+                        <span class="text-sm font-bold text-gray-800">طباعة إيصال بعد التصويت</span>
+                        <p class="text-xs text-gray-400 mt-0.5">طباعة تأكيد للناخب بعد التصويت</p>
+                    </div>
+                    <label class="ant-switch">
+                        <input type="checkbox" asp-for="PrintCardAfterVote" checked>
+                        <span class="ant-switch-slider"></span>
+                    </label>
+                </div>
+
+                <div class="flex items-center justify-between py-4">
+                    <div>
+                        <span class="text-sm font-bold text-gray-800">التصويت في صفحات متتالية</span>
+                        <p class="text-xs text-gray-400 mt-0.5">عرض كل فئة في صفحة منفصلة</p>
+                    </div>
+                    <label class="ant-switch">
+                        <input type="checkbox" asp-for="ReviewInPages" checked>
+                        <span class="ant-switch-slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        function previewLogo(event) {
+            const input = event.target;
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('logoPreview').src = e.target.result;
+                    document.getElementById('previewContainer').classList.remove('hidden');
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function handleSave() {
+            const btn = document.getElementById('saveBtn');
+            const icon = document.getElementById('btnIcon');
+            const text = document.getElementById('btnText');
+            btn.style.opacity = '0.8';
+            icon.className = 'fas fa-spinner fa-spin';
+            text.textContent = 'جاري الحفظ...';
+        }
+    </script>
+}

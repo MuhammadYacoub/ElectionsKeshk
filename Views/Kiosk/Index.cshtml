@@ -1,0 +1,52 @@
+@{
+    Layout = "_KioskLayout";
+    ViewData["Title"] = "كشك التصويت";
+}
+
+<div class="flex items-center justify-center" style="min-height: 80vh;">
+    <div class="w-full max-w-lg text-center" data-gsap="fade-up">
+        <div class="bg-white/95 backdrop-blur-xl shadow-2xl rounded-3xl p-10 border border-white/50">
+            <img src="~/images/logo.png" onerror="this.src='/images/logo.gif'" alt="SLA Logo" class="h-24 mx-auto mb-5 drop-shadow-md object-contain" />
+
+            <h1 class="text-2xl font-black text-gray-900 mb-1">هيئة قضايا الدولة</h1>
+            <h2 class="text-lg font-bold text-success-600 mb-8">نظام التصويت الإلكتروني السري</h2>
+
+            <p class="text-gray-500 font-bold mb-6 text-sm">
+                <i class="fas fa-barcode text-primary-500 ml-1"></i>
+                برجاء تمرير الباركود على القارئ الضوئي أو إدخال الكود للبدء
+            </p>
+
+            @if (TempData["Error"] != null)
+            {
+                <div class="bg-danger-50 border border-danger-200 text-danger-700 px-5 py-3 rounded-xl mb-6 font-bold text-sm">
+                    <i class="fas fa-exclamation-circle ml-1"></i> @TempData["Error"]
+                </div>
+            }
+
+            <form asp-action="Authenticate" method="post" id="kioskForm">
+                <input type="text" name="loginIdentifier" id="barcodeInput" autofocus autocomplete="off"
+                       class="w-full text-center text-3xl tracking-widest font-black py-5 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-primary-500 focus:ring-4 focus:ring-primary-100 transition-all text-gray-800 bg-gray-50"
+                       placeholder="قم بمسح الباركود هنا..." />
+
+                <button type="submit" class="mt-6 w-full bg-primary-700 hover:bg-primary-800 text-white font-black py-5 rounded-2xl text-xl shadow-lg shadow-primary-500/30 transition-all hover:-translate-y-0.5 active:translate-y-0">
+                    <i class="fas fa-arrow-left ml-2"></i> بدء التصويت
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const input = document.getElementById('barcodeInput');
+            if (input) {
+                input.focus();
+                document.addEventListener('click', () => input.focus());
+                input.addEventListener('keypress', function (e) {
+                    if (e.key === 'Enter') { e.preventDefault(); if(input.value.trim().length > 0) document.getElementById('kioskForm').submit(); }
+                });
+            }
+        });
+    </script>
+}

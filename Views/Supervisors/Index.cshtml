@@ -1,0 +1,182 @@
+@model IEnumerable<AdvancedVotingSystem.Controllers.SupervisorViewModel>
+@{
+    ViewData["Title"] = "إدارة المشرفين";
+}
+
+<!-- Page Header -->
+<div class="page-header">
+    <div>
+        <h1 class="page-title flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl gradient-accent flex items-center justify-center">
+                <i class="fas fa-user-shield text-white"></i>
+            </div>
+            إدارة المشرفين ورؤساء اللجان
+        </h1>
+    </div>
+    <div class="flex items-center gap-3">
+        <button onclick="gsapOpenModal('importModal')" class="ant-btn ant-btn-success"><i class="fas fa-file-upload"></i> استيراد من إكسيل</button>
+        <a asp-action="Create" class="ant-btn ant-btn-primary"><i class="fas fa-plus"></i> إضافة مشرف جديد</a>
+    </div>
+</div>
+
+@if(TempData["SuccessMessage"] != null) { <div class="ant-alert ant-alert-success mb-5"><i class="fas fa-check-circle mt-0.5"></i> <span>@TempData["SuccessMessage"]</span></div> }
+@if(TempData["ErrorMessage"] != null) { <div class="ant-alert ant-alert-error mb-5"><i class="fas fa-exclamation-circle mt-0.5"></i> <span>@TempData["ErrorMessage"]</span></div> }
+@if(TempData["ErrorList"] != null) { <div class="ant-alert ant-alert-warning mb-5"><i class="fas fa-info-circle mt-0.5"></i> <span>أخطاء: @TempData["ErrorList"]</span></div> }
+
+<form asp-action="BulkDelete" method="post" id="bulkDeleteForm" onsubmit="return confirm('هل أنت متأكد من حذف المشرفين المحددين؟');">
+    <!-- Toolbar -->
+    <div class="ant-card !rounded-b-none !border-b-0 mb-0">
+        <div class="ant-card-body !py-3 flex flex-col lg:flex-row justify-between items-center gap-4">
+            <div class="ant-tabs" id="filterTabs">
+                <button type="button" class="ant-tab active" data-role="all">الكل</button>
+                <button type="button" class="ant-tab" data-role="CommitteeHead">رؤساء اللجان</button>
+                <button type="button" class="ant-tab" data-role="Supervisor">المشرفين</button>
+            </div>
+            <div class="flex flex-col sm:flex-row w-full lg:w-1/2 gap-3">
+                <select id="electionFilter" class="ant-select !py-2 text-sm">
+                    <option value="">كل الانتخابات</option>
+                    @if(ViewBag.Elections != null) { foreach(var name in ViewBag.Elections as IEnumerable<string>) { <option value="@name">@name</option> } }
+                </select>
+                <div class="relative w-full">
+                    <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none"><i class="fas fa-search text-gray-400 text-sm"></i></div>
+                    <input type="text" id="searchInput" class="ant-form-control !py-2 !pr-10 text-sm" placeholder="البحث بالاسم أو اسم المستخدم...">
+                </div>
+            </div>
+            <button type="submit" id="bulkDeleteBtn" disabled class="ant-btn ant-btn-danger ant-btn-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                <i class="fas fa-trash"></i> حذف المحدد
+            </button>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="ant-card !rounded-t-none">
+        <div class="overflow-x-auto">
+            <table class="ant-table !text-center">
+                <thead>
+                    <tr>
+                        <th class="!w-12"><input type="checkbox" class="ant-checkbox" id="selectAll"></th>
+                        <th>اللقب</th>
+                        <th>الاسم</th>
+                        <th>اسم المستخدم</th>
+                        <th>الانتخابات</th>
+                        <th>الدور</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody id="supervisorsTableBody">
+                    @foreach (var item in Model) {
+                        <tr class="user-row" data-role="@item.RoleName" data-election="@item.ElectionName">
+                            <td><input type="checkbox" name="selectedIds" value="@item.Id" class="ant-checkbox row-checkbox"></td>
+                            <td class="text-gray-600">@item.Surname</td>
+                            <td class="font-bold text-gray-900">@item.FullName</td>
+                            <td class="text-gray-500 font-mono text-sm">@(string.IsNullOrEmpty(item.UserName) ? "---" : item.UserName)</td>
+                            <td class="text-gray-500">@(item.ElectionName ?? "غير محدد")</td>
+                            <td>
+                                @if (item.RoleName == "CommitteeHead") {
+                                    <span class="ant-tag ant-tag-info"><i class="fas fa-user-tie text-[10px]"></i> رئيس لجنة</span>
+                                } else {
+                                    <span class="ant-tag ant-tag-warning"><i class="fas fa-user-shield text-[10px]"></i> مشرف عام</span>
+                                }
+                            </td>
+                            <td>
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="ant-btn ant-btn-default ant-btn-sm"><i class="fas fa-edit text-xs"></i> تعديل</a>
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Any()) {
+                        <tr><td colspan="7"><div class="ant-empty"><i class="fas fa-user-shield ant-empty-icon text-5xl"></i><p class="ant-empty-text">لا يوجد مشرفين حتى الآن</p></div></td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        @if (Model.Any()) {
+            <div class="bg-gray-50 px-6 py-3 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <span id="pageInfo" class="text-sm text-gray-700 font-semibold"></span>
+                <div class="flex gap-1">
+                    <button type="button" id="prevPage" class="ant-btn ant-btn-default ant-btn-sm" disabled>السابق</button>
+                    <button type="button" id="nextPage" class="ant-btn ant-btn-default ant-btn-sm">التالي</button>
+                </div>
+            </div>
+        }
+    </div>
+</form>
+
+<!-- Import Modal -->
+<div id="importModal" class="ant-modal-overlay hidden" style="display:none;">
+    <div class="ant-modal !max-w-lg">
+        <div class="ant-modal-header"><h3 class="text-lg font-black text-gray-900 flex items-center gap-2"><i class="fas fa-file-excel text-success-500"></i> استيراد من إكسيل</h3></div>
+        <div class="ant-modal-body">
+            <div class="ant-alert ant-alert-info mb-5 text-xs"><i class="fas fa-info-circle mt-0.5"></i><span>1. حمّل النموذج الفارغ → 2. املأ البيانات → 3. حدد الدور وارفع الملف.</span></div>
+            <a href="@Url.Action("DownloadTemplate", "Supervisors")" class="ant-btn ant-btn-primary w-full mb-5"><i class="fas fa-download"></i> تحميل النموذج الفارغ</a>
+            <form asp-action="ImportExcel" method="post" enctype="multipart/form-data" class="space-y-4">
+                <div class="ant-form-item"><label class="ant-form-label">الدور المراد رفعه <span class="text-danger-500">*</span></label><select name="excelRoleName" required class="ant-select"><option value="">-- اختر الدور --</option><option value="Supervisor">مشرف عام</option><option value="CommitteeHead">رئيس لجنة</option></select></div>
+                <div class="ant-form-item"><label class="ant-form-label">الانتخابات (اختياري)</label><select name="excelElectionName" class="ant-select"><option value="">-- غير مرتبط بانتخابات --</option>@if(ViewBag.Elections != null) { foreach(var name in ViewBag.Elections as IEnumerable<string>) { <option value="@name">@name</option> } }</select></div>
+                <div class="ant-form-item"><label class="ant-form-label">ملف الإكسيل (.xlsx)</label><input type="file" name="excelFile" accept=".xlsx" required class="ant-form-control !py-2" /></div>
+                <div class="flex gap-3"><button type="button" onclick="gsapCloseModal('importModal')" class="ant-btn ant-btn-default flex-1">إلغاء</button><button type="submit" class="ant-btn ant-btn-success flex-1"><i class="fas fa-upload"></i> رفع واستيراد</button></div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const searchInput = document.getElementById("searchInput");
+        const filterTabs = document.querySelectorAll(".ant-tab");
+        const electionFilter = document.getElementById("electionFilter");
+        const allRows = Array.from(document.querySelectorAll("#supervisorsTableBody tr.user-row"));
+        const selectAll = document.getElementById('selectAll');
+        const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+        const rowsPerPage = 10; let currentPage = 1; let currentVisibleRows = allRows;
+
+        function updatePagination() {
+            const totalPages = Math.ceil(currentVisibleRows.length / rowsPerPage) || 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+            const pageInfo = document.getElementById('pageInfo');
+            if(pageInfo) pageInfo.innerHTML = `عرض <span class="font-bold">${currentVisibleRows.length > 0 ? (currentPage - 1) * rowsPerPage + 1 : 0}</span> إلى <span class="font-bold">${Math.min(currentPage * rowsPerPage, currentVisibleRows.length)}</span> من إجمالي <span class="font-bold">${currentVisibleRows.length}</span>`;
+            const pp = document.getElementById('prevPage'), np = document.getElementById('nextPage');
+            if(pp) pp.disabled = currentPage === 1; if(np) np.disabled = currentPage === totalPages;
+            allRows.forEach(r => r.style.display = "none");
+            const start = (currentPage - 1) * rowsPerPage, end = start + rowsPerPage;
+            for (let i = start; i < end && i < currentVisibleRows.length; i++) currentVisibleRows[i].style.display = "";
+            updateBulkDeleteBtn();
+        }
+
+        if(document.getElementById('prevPage')) document.getElementById('prevPage').addEventListener('click', () => { if (currentPage > 1) { currentPage--; updatePagination(); }});
+        if(document.getElementById('nextPage')) document.getElementById('nextPage').addEventListener('click', () => { const tp = Math.ceil(currentVisibleRows.length / rowsPerPage); if (currentPage < tp) { currentPage++; updatePagination(); }});
+
+        function updateBulkDeleteBtn() { if(!bulkDeleteBtn) return; bulkDeleteBtn.disabled = document.querySelectorAll('.row-checkbox:checked').length === 0; }
+        if(selectAll) selectAll.addEventListener('change', function() { currentVisibleRows.forEach(row => { if(row.style.display !== "none") row.querySelector('.row-checkbox').checked = selectAll.checked; }); updateBulkDeleteBtn(); });
+        document.querySelectorAll('.row-checkbox').forEach(cb => cb.addEventListener('change', updateBulkDeleteBtn));
+
+        function filterTable() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const selectedElection = electionFilter.value;
+            const activeTab = document.querySelector(".ant-tab.active")?.getAttribute("data-role") || "all";
+            currentVisibleRows = [];
+            allRows.forEach(row => {
+                const name = row.querySelector('td:nth-child(3)')?.textContent.toLowerCase() || '';
+                const username = row.querySelector('td:nth-child(4)')?.textContent.toLowerCase() || '';
+                const matchesSearch = name.includes(searchTerm) || username.includes(searchTerm);
+                const matchesElection = !selectedElection || row.getAttribute("data-election") === selectedElection;
+                const matchesRole = activeTab === "all" || row.getAttribute("data-role") === activeTab;
+                if (matchesSearch && matchesElection && matchesRole) currentVisibleRows.push(row);
+            });
+            currentPage = 1; updatePagination();
+        }
+
+        if(allRows.length > 0) updatePagination();
+        if(searchInput) searchInput.addEventListener("keyup", filterTable);
+        if(electionFilter) electionFilter.addEventListener("change", filterTable);
+        filterTabs.forEach(tab => {
+            tab.addEventListener("click", function () {
+                filterTabs.forEach(t => { t.classList.remove("active", "bg-white", "text-gray-800", "shadow-sm"); t.classList.add("text-gray-500"); });
+                this.classList.add("active", "bg-white", "text-gray-800", "shadow-sm"); this.classList.remove("text-gray-500");
+                filterTable();
+            });
+        });
+
+        document.getElementById('importModal')?.addEventListener('click', function(e) { if (e.target === this) gsapCloseModal('importModal'); });
+    });
+</script>
+}

@@ -1,0 +1,199 @@
+@model AdvancedVotingSystem.Models.Committee
+@{
+    ViewData["Title"] = "كشوف الناخبين";
+}
+
+<!-- Page Header -->
+<div class="page-header no-print">
+    <div>
+        <h1 class="page-title flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-purple-600 flex items-center justify-center">
+                <i class="fas fa-clipboard-list text-white"></i>
+            </div>
+            كشوف الناخبين
+        </h1>
+        <p class="page-subtitle">استخراج وطباعة كشوف الناخبين</p>
+    </div>
+</div>
+
+<!-- Filter Form -->
+<div class="ant-card mb-6 no-print">
+    <div class="ant-card-body">
+        <form method="get" class="flex flex-wrap gap-4 items-end">
+            <div class="flex-1 min-w-[250px] ant-form-item !mb-0">
+                <label class="ant-form-label">الانتخابات</label>
+                <select name="electionId" id="electionId" class="ant-select">
+                    <option value="">-- اختر الانتخابات --</option>
+                    @if (ViewBag.Elections != null)
+                    {
+                        foreach (var election in ViewBag.Elections)
+                        {
+                            var isVlElSelected = ViewBag.CurrentElectionId != null && ViewBag.CurrentElectionId == election.Id;
+                            if (isVlElSelected)
+                            {
+                                <option value="@election.Id" selected>@election.Name</option>
+                            }
+                            else
+                            {
+                                <option value="@election.Id">@election.Name</option>
+                            }
+                        }
+                    }
+                </select>
+            </div>
+            <div class="flex-1 min-w-[250px] ant-form-item !mb-0">
+                <label class="ant-form-label">اللجنة</label>
+                <select name="committeeId" id="committeeId" class="ant-select" @(ViewBag.CurrentElectionId == null ? "disabled" : "")>
+                    <option value="">-- اختر اللجنة --</option>
+                </select>
+            </div>
+            <button type="submit" class="ant-btn ant-btn-primary"><i class="fas fa-search"></i> عرض الكشف</button>
+        </form>
+    </div>
+</div>
+
+@if (Model != null)
+{
+    <div id="printArea" class="ant-card" dir="rtl">
+        <div class="ant-card-body !p-8">
+            <!-- Print Header -->
+            <div class="flex justify-between items-center mb-6 border-b-2 border-gray-800 pb-4">
+                <div class="flex items-center gap-4">
+                    <img src="~/images/logo.gif" alt="Logo" class="h-16 w-16" />
+                    <div>
+                        <h2 class="text-2xl font-black text-gray-900">هيئة قضايا الدولة</h2>
+                        <h3 class="text-lg font-bold text-gray-700">كشف ناخبين - @Model.Election.Name</h3>
+                        <h4 class="text-base font-bold text-gray-500">@Model.Name</h4>
+                    </div>
+                </div>
+                <span class="bg-gray-100 border border-gray-300 text-gray-800 font-black px-5 py-2 rounded-xl text-lg">
+                    إجمالي المقيدين: @Model.RegisteredVotersCount
+                </span>
+            </div>
+
+            <!-- Table -->
+            <table class="w-full border-collapse">
+                <thead>
+                    <tr>
+                        <th class="border border-gray-800 bg-gray-100 px-4 py-3 text-center font-bold text-sm" style="width: 50px;">م</th>
+                        @if (Model.Election.EntryMethod == AdvancedVotingSystem.Models.Enums.EntryMethod.NationalId)
+                        {
+                            <th class="border border-gray-800 bg-gray-100 px-4 py-3 text-center font-bold text-sm">الاسم</th>
+                            <th class="border border-gray-800 bg-gray-100 px-4 py-3 text-center font-bold text-sm">الرقم القومي</th>
+                            <th class="border border-gray-800 bg-gray-100 px-4 py-3 text-center font-bold text-sm">الباركود</th>
+                            <th class="border border-gray-800 bg-gray-100 px-4 py-3 text-center font-bold text-sm" style="width: 200px;">التوقيع</th>
+                        }
+                        else if (Model.Election.EntryMethod == AdvancedVotingSystem.Models.Enums.EntryMethod.KnownCode)
+                        {
+                            <th class="border border-gray-800 bg-gray-100 px-4 py-3 text-center font-bold text-sm">الاسم</th>
+                            <th class="border border-gray-800 bg-gray-100 px-4 py-3 text-center font-bold text-sm">كود الدخول السري</th>
+                            <th class="border border-gray-800 bg-gray-100 px-4 py-3 text-center font-bold text-sm">الباركود</th>
+                            <th class="border border-gray-800 bg-gray-100 px-4 py-3 text-center font-bold text-sm" style="width: 200px;">التوقيع</th>
+                        }
+                        else
+                        {
+                            <th class="border border-gray-800 bg-gray-100 px-4 py-3 text-center font-bold text-sm">رقم البطاقة (الكود)</th>
+                            <th class="border border-gray-800 bg-gray-100 px-4 py-3 text-center font-bold text-sm">الباركود</th>
+                            <th class="border border-gray-800 bg-gray-100 px-4 py-3 text-center font-bold text-sm" style="width: 250px;">الحالة / ملاحظات</th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @{ int counter = 1; }
+                    @if (Model.Voters != null && Model.Voters.Any())
+                    {
+                        foreach (var voter in Model.Voters)
+                        {
+                            <tr>
+                                <td class="border border-gray-300 px-4 py-3 text-center font-bold text-sm">@counter</td>
+                                @if (Model.Election.EntryMethod == AdvancedVotingSystem.Models.Enums.EntryMethod.NationalId)
+                                {
+                                    <td class="border border-gray-300 px-4 py-3 font-bold text-sm">@voter.FullName</td>
+                                    <td class="border border-gray-300 px-4 py-3 text-center font-bold text-sm">@voter.NationalId</td>
+                                    <td class="border border-gray-300 px-4 py-3 text-center"><svg class="voter-barcode" jsbarcode-value="@voter.LoginIdentifier" jsbarcode-height="30" jsbarcode-width="1.5" jsbarcode-displayvalue="true" jsbarcode-fontsize="14"></svg></td>
+                                    <td class="border border-gray-300 px-4 py-3"></td>
+                                }
+                                else if (Model.Election.EntryMethod == AdvancedVotingSystem.Models.Enums.EntryMethod.KnownCode)
+                                {
+                                    <td class="border border-gray-300 px-4 py-3 font-bold text-sm">@voter.FullName</td>
+                                    <td class="border border-gray-300 px-4 py-3 text-center font-bold text-sm">@voter.LoginIdentifier</td>
+                                    <td class="border border-gray-300 px-4 py-3 text-center"><svg class="voter-barcode" jsbarcode-value="@voter.LoginIdentifier" jsbarcode-height="30" jsbarcode-width="1.5" jsbarcode-displayvalue="true" jsbarcode-fontsize="14"></svg></td>
+                                    <td class="border border-gray-300 px-4 py-3"></td>
+                                }
+                                else
+                                {
+                                    <td class="border border-gray-300 px-4 py-3 text-center font-bold text-sm">@voter.LoginIdentifier</td>
+                                    <td class="border border-gray-300 px-4 py-3 text-center"><svg class="voter-barcode" jsbarcode-value="@voter.LoginIdentifier" jsbarcode-height="30" jsbarcode-width="1.5" jsbarcode-displayvalue="true" jsbarcode-fontsize="14"></svg></td>
+                                    <td class="border border-gray-300 px-4 py-3"></td>
+                                }
+                            </tr>
+                            counter++;
+                        }
+                    }
+                    else
+                    {
+                        <tr><td colspan="5" class="border border-gray-300 px-6 py-8 text-center text-gray-500 font-bold">لا يوجد ناخبين مسجلين في هذه اللجنة.</td></tr>
+                    }
+                </tbody>
+            </table>
+
+            <!-- Pagination -->
+            <div id="paginationControls" class="no-print mt-6 flex justify-between items-center bg-gray-50 p-4 rounded-xl border border-gray-200">
+                <button id="prevBtn" onclick="changePage(-1)" class="ant-btn ant-btn-default"><i class="fas fa-chevron-right ml-1"></i> السابق</button>
+                <span id="pageIndicator" class="font-bold text-gray-700 text-lg">صفحة 1 من 1</span>
+                <button id="nextBtn" onclick="changePage(1)" class="ant-btn ant-btn-default">التالي <i class="fas fa-chevron-left mr-1"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Actions -->
+    <div class="no-print fixed bottom-8 left-8 flex items-center gap-3">
+        <a id="exportExcelBtn" href="/Committees/ExportVotersToExcel?committeeId=@Model.Id" class="ant-btn ant-btn-success ant-btn-lg shadow-lg">
+            <i class="fas fa-file-excel"></i> تصدير Excel
+        </a>
+        <button onclick="prepareAndPrint()" class="ant-btn ant-btn-primary ant-btn-lg shadow-lg">
+            <i class="fas fa-print"></i> طباعة الكشف
+        </button>
+    </div>
+}
+else if (ViewBag.CurrentCommitteeId != null)
+{
+    <div class="ant-alert ant-alert-warning"><i class="fas fa-exclamation-triangle mt-0.5"></i> <span>لم يتم العثور على بيانات لهذه اللجنة.</span></div>
+}
+
+@section Scripts {
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const electionSelect = document.getElementById('electionId');
+        const committeeSelect = document.getElementById('committeeId');
+        const currentCommitteeId = '@ViewBag.CurrentCommitteeId';
+
+        function loadCommittees(electionId) {
+            if (!electionId) { committeeSelect.innerHTML = '<option value="">-- اختر اللجنة --</option>'; committeeSelect.disabled = true; return; }
+            fetch(`/Committees/GetCommitteesByElection?electionId=${electionId}`)
+                .then(r => r.json())
+                .then(data => {
+                    committeeSelect.innerHTML = '<option value="">-- اختر اللجنة --</option>';
+                    if (data && data.length > 0) {
+                        data.forEach(c => { committeeSelect.innerHTML += `<option value="${c.id}" ${c.id.toString() === currentCommitteeId ? 'selected' : ''}>${c.name}</option>`; });
+                        committeeSelect.disabled = false;
+                    } else { committeeSelect.innerHTML = '<option value="">لا توجد لجان</option>'; committeeSelect.disabled = true; }
+                });
+        }
+        electionSelect.addEventListener('change', function () { loadCommittees(this.value); });
+        if (electionSelect.value) loadCommittees(electionSelect.value);
+    });
+
+    const rowsPerPage = 50; let currentPage = 1; let totalRows = 0; let trs = [];
+    document.addEventListener('DOMContentLoaded', function () {
+        const tbody = document.querySelector('#printArea tbody');
+        if (tbody) { trs = Array.from(tbody.querySelectorAll('tr')); if (trs.length === 1 && trs[0].querySelector('td').colSpan > 1) { totalRows = 0; document.getElementById('paginationControls').style.display = 'none'; } else { totalRows = trs.length; displayPage(1); } }
+    });
+    function displayPage(page) { if (totalRows === 0) return; const totalPages = Math.ceil(totalRows / rowsPerPage); if (page < 1) page = 1; if (page > totalPages) page = totalPages; currentPage = page; const start = (page - 1) * rowsPerPage; const end = start + rowsPerPage; trs.forEach((tr, i) => { tr.style.display = (i >= start && i < end) ? '' : 'none'; }); document.getElementById('pageIndicator').innerText = `صفحة ${currentPage} من ${totalPages}`; document.getElementById('prevBtn').disabled = currentPage === 1; document.getElementById('nextBtn').disabled = currentPage === totalPages; }
+    function changePage(delta) { displayPage(currentPage + delta); }
+    function prepareAndPrint() { if (totalRows > 0) trs.forEach(tr => tr.style.display = ''); window.print(); }
+    window.addEventListener('afterprint', () => { if (totalRows > 0) displayPage(currentPage); });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script>
+<script>document.addEventListener("DOMContentLoaded", function() { if(typeof JsBarcode !== 'undefined') { JsBarcode(".voter-barcode").init(); } });</script>
+}

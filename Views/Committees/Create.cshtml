@@ -1,0 +1,191 @@
+@model AdvancedVotingSystem.Models.Committee
+@using AdvancedVotingSystem.Models.Enums
+@{
+    ViewData["Title"] = "إنشاء لجنة انتخابية جديدة";
+}
+
+<!-- Page Header -->
+<div class="page-header">
+    <div>
+        <h1 class="page-title flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center">
+                <i class="fas fa-plus-circle text-white"></i>
+            </div>
+            إنشاء لجنة انتخابية جديدة
+        </h1>
+    </div>
+    <a href="/Committees/Index" class="ant-btn ant-btn-default">
+        <i class="fas fa-arrow-right"></i> رجوع
+    </a>
+</div>
+
+@if(TempData["SuccessMessage"] != null)
+{
+    <div class="ant-alert ant-alert-success mb-5"><i class="fas fa-check-circle mt-0.5"></i> <span>@TempData["SuccessMessage"]</span></div>
+}
+@if(TempData["ErrorMessage"] != null)
+{
+    <div class="ant-alert ant-alert-error mb-5"><i class="fas fa-exclamation-circle mt-0.5"></i> <span>@TempData["ErrorMessage"]</span></div>
+}
+
+<form asp-action="Create" method="post" enctype="multipart/form-data">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <!-- Committee Data Card -->
+        <div class="ant-card">
+            <div class="ant-card-head">
+                <h3 class="ant-card-head-title flex items-center gap-2"><i class="fas fa-building text-primary-500"></i> بيانات اللجنة والناخبين</h3>
+            </div>
+            <div class="ant-card-body space-y-5">
+                <div class="ant-form-item">
+                    <label class="ant-form-label">الانتخابات التابعة لها <span class="text-danger-500">*</span></label>
+                    <select asp-for="ElectionId" id="ElectionId" class="ant-select" required>
+                        <option value="" data-entry="">-- اختر الانتخابات --</option>
+                        @if(ViewBag.Elections != null)
+                        {
+                            foreach(var election in ViewBag.Elections as IEnumerable<AdvancedVotingSystem.Models.Election>)
+                            {
+                                <option value="@election.Id" data-entry="@election.EntryMethod.ToString()">@election.Name</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="ant-form-item">
+                    <label class="ant-form-label">اسم اللجنة <span class="text-danger-500">*</span></label>
+                    <input asp-for="Name" class="ant-form-control" placeholder="مثال: اللجنة الفرعية رقم 1" required />
+                </div>
+
+                <div id="voterDataSection" class="hidden pt-4 border-t border-dashed border-gray-200 mt-4 space-y-4">
+                    <div id="excelUploadDiv" class="ant-form-item">
+                        <label class="ant-form-label"><i class="fas fa-file-excel text-success-500 ml-1"></i> رفع كشف الناخبين (Excel)</label>
+                        <p class="text-xs text-gray-400 mb-2">ملف الإكسيل مطلوب دائماً. تختلف البيانات المطلوبة حسب نظام التصويت.</p>
+                        <input type="file" name="votersExcel" id="votersExcel" accept=".xlsx, .xls" class="ant-form-control !py-2" required />
+                        <a id="downloadTemplateBtn" href="#" class="ant-btn ant-btn-default ant-btn-sm mt-2 hidden">
+                            <i class="fas fa-file-excel text-success-500"></i> تحميل نموذج الإكسيل المناسب
+                        </a>
+                    </div>
+
+                    <div id="cooldownContainer" class="ant-form-item hidden">
+                        <label class="ant-form-label"><i class="fas fa-clock text-primary-500 ml-1"></i> فترة التبريد</label>
+                        <input type="number" name="CooldownThreshold" value="3" min="1" max="100" class="ant-form-control" />
+                    </div>
+
+                    <div id="registeredVotersContainer" class="ant-form-item hidden">
+                        <label class="ant-form-label"><i class="fas fa-users text-primary-500 ml-1"></i> إجمالي عدد الناخبين المقيدين</label>
+                        <input type="number" name="ManualRegisteredCount" class="ant-form-control" placeholder="مثال: 1500" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Team Card -->
+        <div class="ant-card">
+            <div class="ant-card-head">
+                <h3 class="ant-card-head-title flex items-center gap-2"><i class="fas fa-users-cog text-primary-500"></i> فريق العمل</h3>
+            </div>
+            <div class="ant-card-body space-y-5">
+                <div class="ant-form-item">
+                    <label class="ant-form-label">رئيس اللجنة <span class="text-danger-500">*</span></label>
+                    <select asp-for="HeadId" id="HeadId" class="ant-select" required disabled>
+                        <option value="">-- يرجى اختيار الانتخابات أولاً --</option>
+                    </select>
+                </div>
+
+                <div class="ant-form-item">
+                    <label class="ant-form-label">المشرفين المساعدين</label>
+                    <input type="text" id="supervisorSearch" class="ant-form-control mb-3" placeholder="بحث عن مشرف..." />
+                    <div id="supervisorsList" class="max-h-56 overflow-y-auto border-2 border-gray-200 rounded-xl p-3">
+                        <div class="text-center py-6 text-gray-400 font-bold text-sm">
+                            <i class="fas fa-info-circle"></i> يرجى اختيار الانتخابات أولاً
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-5">
+        <button type="submit" class="ant-btn ant-btn-primary ant-btn-lg w-full">
+            <i class="fas fa-save"></i> حفظ وإنشاء اللجنة
+        </button>
+    </div>
+</form>
+
+@section Scripts {
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const electionSelect = document.getElementById("ElectionId");
+        const headSelect = document.getElementById("HeadId");
+        const supervisorsContainer = document.getElementById("supervisorsList");
+        const voterDataSection = document.getElementById("voterDataSection");
+        const cooldownContainer = document.getElementById("cooldownContainer");
+        const supervisorSearch = document.getElementById("supervisorSearch");
+        const downloadTemplateBtn = document.getElementById("downloadTemplateBtn");
+
+        electionSelect.addEventListener("change", function () {
+            const electionId = this.value;
+            const selectedOption = this.options[this.selectedIndex];
+            const entryMethod = selectedOption.getAttribute("data-entry");
+
+            if (electionId) {
+                if (downloadTemplateBtn) {
+                    downloadTemplateBtn.href = "/Committees/DownloadExcelTemplate?electionId=" + electionId;
+                    downloadTemplateBtn.classList.remove('hidden');
+                }
+
+                voterDataSection.classList.remove('hidden');
+                if (entryMethod === "UnknownCode") {
+                    cooldownContainer.classList.remove('hidden');
+                    document.getElementById("registeredVotersContainer").classList.remove('hidden');
+                } else {
+                    cooldownContainer.classList.add('hidden');
+                    document.getElementById("registeredVotersContainer").classList.add('hidden');
+                }
+
+                fetch(`/Committees/GetStaffByElection?electionId=${electionId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        headSelect.innerHTML = '<option value="">-- اختر رئيس اللجنة --</option>';
+                        if (data.heads && data.heads.length > 0) {
+                            headSelect.disabled = false;
+                            data.heads.forEach(h => {
+                                const idText = h.nationalId ? ` (${h.nationalId})` : '';
+                                headSelect.innerHTML += `<option value="${h.id}">${h.fullName}${idText}</option>`;
+                            });
+                        } else {
+                            headSelect.innerHTML = '<option value="">لا يوجد رؤساء لجان متاحين</option>';
+                            headSelect.disabled = true;
+                        }
+
+                        supervisorsContainer.innerHTML = '';
+                        if (data.supervisors && data.supervisors.length > 0) {
+                            data.supervisors.forEach(s => {
+                                const idText = s.nationalId ? ` (${s.nationalId})` : '';
+                                supervisorsContainer.innerHTML += `
+                                    <label class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 cursor-pointer transition-colors">
+                                        <input type="checkbox" name="supervisorIds" value="${s.id}" class="ant-checkbox" />
+                                        <span class="text-sm font-bold text-gray-700">${s.fullName} <small class="text-gray-400 mr-1">${idText}</small></span>
+                                    </label>`;
+                            });
+                        } else {
+                            supervisorsContainer.innerHTML = '<div class="text-center py-6 text-gray-400 font-bold text-sm"><i class="fas fa-info-circle"></i> لا يوجد مشرفين متاحين</div>';
+                        }
+                    });
+            } else {
+                voterDataSection.classList.add('hidden');
+                if (downloadTemplateBtn) downloadTemplateBtn.classList.add('hidden');
+                headSelect.innerHTML = '<option value="">-- يرجى اختيار الانتخابات أولاً --</option>';
+                headSelect.disabled = true;
+                supervisorsContainer.innerHTML = '<div class="text-center py-6 text-gray-400 font-bold text-sm"><i class="fas fa-info-circle"></i> يرجى اختيار الانتخابات أولاً</div>';
+            }
+        });
+
+        supervisorSearch.addEventListener("keyup", function() {
+            const term = this.value.toLowerCase();
+            supervisorsContainer.querySelectorAll('label').forEach(item => {
+                item.style.display = item.textContent.toLowerCase().includes(term) ? "flex" : "none";
+            });
+        });
+    });
+</script>
+}

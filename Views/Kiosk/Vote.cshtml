@@ -1,0 +1,173 @@
+@model AdvancedVotingSystem.Models.Election
+@using System.Text.Json
+@{
+    Layout = "_KioskLayout";
+    ViewData["Title"] = "شاشة التصويت";
+    var categoriesJson = JsonSerializer.Serialize(Model.Categories.Select(c => new {
+        id = c.Id,
+        type = c.CategoryType.ToString(),
+        requiredSeats = c.RequiredSeats
+    }));
+}
+
+<div class="px-4 md:px-8 pb-8 max-w-7xl mx-auto">
+    <!-- Election Header -->
+    <div class="text-center py-6 mb-6 border-b border-white/10">
+        <h1 class="text-3xl md:text-4xl font-black text-accent-500">@Model.Name</h1>
+    </div>
+
+    <div id="voting-wizard">
+        @foreach (var category in Model.Categories)
+        {
+            <div class="category-section" data-category-id="@category.Id" data-category-type="@category.CategoryType" data-required-seats="@category.RequiredSeats" style="display: none;">
+                <div class="bg-white/5 backdrop-blur-lg rounded-3xl border border-white/10 p-6 md:p-8 mb-6">
+                    <h2 class="text-center text-2xl text-accent-400 font-black mb-2">@category.Name</h2>
+
+                    @if (category.CategoryType == AdvancedVotingSystem.Models.Enums.CategoryType.SeatBased)
+                    {
+                        <p class="text-center text-white/60 text-lg mb-6">الرجاء اختيار ما لا يزيد عن <span class="text-accent-500 font-black">@category.RequiredSeats</span> مرشحين</p>
+                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                            @foreach (var candidate in category.Candidates)
+                            {
+                                <div class="candidate-card cursor-pointer rounded-2xl overflow-hidden bg-white/5 border-2 border-white/10 hover:border-accent-500/50 transition-all duration-300 group"
+                                     data-candidate-id="@candidate.Id" onclick="toggleCandidate(this, @category.Id)">
+                                    @if (!string.IsNullOrEmpty(candidate.ImagePath))
+                                    {
+                                        <div class="aspect-square overflow-hidden">
+                                            <img src="@candidate.ImagePath" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="@candidate.Name">
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="aspect-square bg-gradient-to-br from-primary-600 to-primary-800 flex items-center justify-center">
+                                            <span class="text-5xl font-black text-white/40">@candidate.Name.FirstOrDefault()</span>
+                                        </div>
+                                    }
+                                    <div class="p-4 text-center">
+                                        @if (!string.IsNullOrEmpty(candidate.Title))
+                                        {
+                                            <span class="text-white/40 text-xs font-bold block mb-1">@candidate.Title</span>
+                                        }
+                                        <h3 class="text-white font-black text-sm md:text-base">@candidate.Name</h3>
+                                        @if (candidate.CandidateNumber.HasValue)
+                                        {
+                                            <span class="inline-block bg-white/10 text-white/60 text-xs px-2 py-0.5 rounded-full mt-2 font-bold">رقم @candidate.CandidateNumber</span>
+                                        }
+                                    </div>
+                                    <div class="check-indicator absolute top-3 left-3 w-8 h-8 rounded-full bg-accent-500 items-center justify-center hidden">
+                                        <i class="fas fa-check text-white font-bold"></i>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-center text-white/60 text-lg mb-6">الرجاء اختيار موافق أو غير موافق</p>
+                        <div class="space-y-4 max-w-3xl mx-auto">
+                            @foreach (var candidate in category.Candidates)
+                            {
+                                <div class="bg-white/5 rounded-2xl border border-white/10 p-6">
+                                    <h3 class="text-white font-black text-xl mb-4">@candidate.Name</h3>
+                                    <div class="flex gap-4">
+                                        <button type="button" class="flex-1 py-4 rounded-xl border-2 border-success-500/30 text-success-400 text-xl font-black hover:bg-success-500/20 transition-all option-btn"
+                                                data-candidate-id="@candidate.Id" data-selection="true"
+                                                onclick="selectOption(this, @category.Id, @candidate.Id, true)">
+                                            <i class="fas fa-check-circle ml-2"></i> موافق
+                                        </button>
+                                        <button type="button" class="flex-1 py-4 rounded-xl border-2 border-danger-500/30 text-danger-400 text-xl font-black hover:bg-danger-500/20 transition-all option-btn"
+                                                data-candidate-id="@candidate.Id" data-selection="false"
+                                                onclick="selectOption(this, @category.Id, @candidate.Id, false)">
+                                            <i class="fas fa-times-circle ml-2"></i> غير موافق
+                                        </button>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Navigation -->
+    <div class="grid grid-cols-2 gap-4 mt-6">
+        <button id="btnPrev" class="py-5 rounded-2xl bg-white/10 border border-white/20 text-white text-xl font-black hover:bg-white/20 transition-all" onclick="prevPage()" style="display: none;">
+            <i class="fas fa-chevron-right ml-2"></i> السابق
+        </button>
+        <div id="btnPrevPlaceholder"></div>
+        <button id="btnNext" class="py-5 rounded-2xl bg-primary-600 text-white text-xl font-black hover:bg-primary-700 transition-all" onclick="nextPage()">
+            التالي <i class="fas fa-chevron-left mr-2"></i>
+        </button>
+        <button id="btnSubmit" class="py-5 rounded-2xl bg-accent-500 text-white text-xl font-black hover:bg-accent-600 transition-all shadow-lg shadow-accent-500/30 col-span-2" onclick="submitVote()" style="display: none;">
+            <i class="fas fa-paper-plane ml-2"></i> تأكيد التصويت
+        </button>
+    </div>
+</div>
+
+<style>
+    .candidate-card { position: relative; }
+    .candidate-card.selected { border-color: var(--accent-500, #d97706) !important; background: rgba(217, 119, 6, 0.15) !important; box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.3); }
+    .candidate-card.selected .check-indicator { display: flex !important; }
+    .option-btn.active[data-selection="true"] { background: rgba(16, 185, 129, 0.25) !important; border-color: rgba(16, 185, 129, 0.7) !important; color: #34d399 !important; }
+    .option-btn.active[data-selection="false"] { background: rgba(239, 68, 68, 0.25) !important; border-color: rgba(239, 68, 68, 0.7) !important; color: #f87171 !important; }
+</style>
+
+@section Scripts {
+    <script>
+        const categories = @Html.Raw(categoriesJson);
+        const reviewInPages = @Model.ReviewInPages.ToString().ToLower();
+        let currentCategoryIndex = 0;
+        let selections = [];
+
+        document.addEventListener('DOMContentLoaded', function () {
+            if (reviewInPages && categories.length > 0) {
+                showCategory(0);
+            } else {
+                document.querySelectorAll('.category-section').forEach(el => el.style.display = 'block');
+                document.getElementById('btnNext').style.display = 'none';
+                document.getElementById('btnSubmit').style.display = 'block';
+            }
+        });
+
+        function showCategory(index) {
+            document.querySelectorAll('.category-section').forEach(el => el.style.display = 'none');
+            document.querySelector(`.category-section[data-category-id="${categories[index].id}"]`).style.display = 'block';
+            document.getElementById('btnPrev').style.display = index > 0 ? 'block' : 'none';
+            document.getElementById('btnPrevPlaceholder').style.display = index > 0 ? 'none' : 'block';
+            if (index === categories.length - 1) { document.getElementById('btnNext').style.display = 'none'; document.getElementById('btnSubmit').style.display = 'block'; }
+            else { document.getElementById('btnNext').style.display = 'block'; document.getElementById('btnSubmit').style.display = 'none'; }
+        }
+
+        function prevPage() { if (currentCategoryIndex > 0) { currentCategoryIndex--; showCategory(currentCategoryIndex); window.scrollTo(0,0); } }
+        function nextPage() { if (currentCategoryIndex < categories.length - 1) { currentCategoryIndex++; showCategory(currentCategoryIndex); window.scrollTo(0,0); } }
+
+        function toggleCandidate(element, categoryId) {
+            const cat = categories.find(c => c.id === categoryId);
+            const isSelected = element.classList.contains('selected');
+            const candidateId = parseInt(element.dataset.candidateId);
+            if (isSelected) { element.classList.remove('selected'); selections = selections.filter(s => s.CandidateId !== candidateId); }
+            else { const catSel = selections.filter(s => s.categoryId === categoryId); if (catSel.length >= cat.requiredSeats) { alert(`الحد الأقصى للاختيار في هذا القسم هو ${cat.requiredSeats}.`); return; } element.classList.add('selected'); selections.push({ CandidateId: candidateId, IsSelected: true, categoryId: categoryId }); }
+        }
+
+        function selectOption(btn, categoryId, candidateId, selection) {
+            const siblings = btn.parentElement.querySelectorAll('.option-btn');
+            siblings.forEach(s => s.classList.remove('active'));
+            btn.classList.add('active');
+            selections = selections.filter(s => s.CandidateId !== candidateId);
+            selections.push({ CandidateId: candidateId, IsSelected: selection, categoryId: categoryId });
+        }
+
+        function submitVote() {
+            if(confirm("هل أنت متأكد من رغبتك في تأكيد التصويت؟")) {
+                fetch('/Kiosk/SubmitVote', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value },
+                    body: JSON.stringify({ Selections: selections })
+                }).then(r => r.json()).then(result => {
+                    if (result.success) { if (result.printCard) window.location.href = '/Kiosk/PrintCard/' + result.voterId; else { alert("تم تسجيل تصويتك بنجاح!"); window.location.href = '/'; } }
+                }).catch(() => alert("حدث خطأ أثناء إرسال التصويت."));
+            }
+        }
+    </script>
+    @Html.AntiForgeryToken()
+}

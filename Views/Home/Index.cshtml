@@ -1,0 +1,44 @@
+@model AdvancedVotingSystem.Models.Election
+@{
+    Layout = "_KioskLayout";
+    ViewData["Title"] = "مرحباً بكم";
+}
+
+<div class="flex items-center justify-center" style="min-height: 80vh;">
+    <div class="w-full max-w-xl text-center">
+        @if (!string.IsNullOrEmpty(Model.LogoPath))
+        {
+            <div class="mb-8">
+                <img src="@Model.LogoPath" alt="شعار الانتخابات" class="mx-auto h-40 object-contain drop-shadow-xl" />
+            </div>
+        }
+        <h1 class="text-4xl md:text-5xl font-black text-white mb-4 tracking-tight" data-gsap="fade-up">@Model.Name</h1>
+        <div class="w-24 h-1 bg-accent-500 mx-auto rounded-full mb-8"></div>
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="bg-danger-500/20 border border-danger-500/40 text-danger-300 p-5 rounded-2xl mb-6 text-lg font-bold backdrop-blur-sm">
+                <i class="fas fa-exclamation-circle ml-2"></i> @TempData["Error"]
+            </div>
+        }
+
+        <div class="bg-white/10 backdrop-blur-xl rounded-3xl p-8 border border-white/20 shadow-2xl" data-gsap="fade-up">
+            <h2 class="text-2xl text-white/90 font-bold mb-6">
+                الرجاء إدخال @(Model.EntryMethod == AdvancedVotingSystem.Models.Enums.EntryMethod.NationalId ? "الرقم القومي" : "كود الدخول")
+            </h2>
+            <form asp-controller="Kiosk" asp-action="Authenticate" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="electionId" value="@Model.Id" />
+                <div class="mb-6">
+                    <input type="text" name="loginIdentifier"
+                           class="w-full text-center text-4xl font-black bg-white/10 border-2 border-white/30 text-white rounded-2xl p-6 placeholder-white/40 focus:outline-none focus:border-accent-500 focus:bg-white/15 transition-all duration-300"
+                           placeholder="@(Model.EntryMethod == AdvancedVotingSystem.Models.Enums.EntryMethod.NationalId ? "الرقم القومي" : "كود الدخول")"
+                           required autocomplete="off" />
+                </div>
+                <button type="submit" class="w-full bg-accent-500 hover:bg-accent-600 text-white font-black text-2xl py-5 rounded-2xl shadow-lg shadow-accent-500/30 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]">
+                    <i class="fas fa-arrow-left ml-3"></i> ابدأ التصويت الآن
+                </button>
+            </form>
+        </div>
+    </div>
+</div>

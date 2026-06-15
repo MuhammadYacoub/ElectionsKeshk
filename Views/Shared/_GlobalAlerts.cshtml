@@ -1,0 +1,74 @@
+@if (TempData["SuccessMessage"] != null || TempData["ErrorMessage"] != null)
+{
+    bool isSuccess = TempData["SuccessMessage"] != null;
+    string message = isSuccess ? TempData["SuccessMessage"].ToString() : TempData["ErrorMessage"].ToString();
+
+    <div id="globalAlertModal" class="ant-modal-overlay" style="display:flex;">
+        <div class="ant-modal" id="globalAlertContent">
+            <div class="p-8 text-center">
+                <!-- Icon -->
+                <div class="mx-auto w-20 h-20 rounded-full flex items-center justify-center mb-5 @(isSuccess ? "bg-success-50" : "bg-danger-50")">
+                    @if (isSuccess)
+                    {
+                        <svg class="w-10 h-10 text-success-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                    }
+                    else
+                    {
+                        <svg class="w-10 h-10 text-danger-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    }
+                </div>
+
+                <!-- Title -->
+                <h3 class="text-xl font-black text-gray-900 mb-2">
+                    @(isSuccess ? "تمت العملية بنجاح" : "تنبيه")
+                </h3>
+
+                <!-- Message -->
+                <p class="text-gray-500 mb-8 font-semibold text-sm leading-relaxed">
+                    @message
+                </p>
+
+                <!-- Button -->
+                <button type="button" onclick="closeGlobalAlert()"
+                    class="ant-btn ant-btn-lg w-full @(isSuccess ? "ant-btn-success" : "ant-btn-danger")">
+                    <i class="fas fa-check"></i>
+                    موافق
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Animate modal on load
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof gsap !== 'undefined') {
+                const modal = document.getElementById('globalAlertModal');
+                const content = document.getElementById('globalAlertContent');
+                gsap.fromTo(modal, { opacity: 0 }, { opacity: 1, duration: 0.3 });
+                gsap.fromTo(content,
+                    { scale: 0.85, opacity: 0, y: 30 },
+                    { scale: 1, opacity: 1, y: 0, duration: 0.5, ease: 'back.out(1.4)', delay: 0.15 }
+                );
+            }
+        });
+
+        function closeGlobalAlert() {
+            const modal = document.getElementById('globalAlertModal');
+            const content = document.getElementById('globalAlertContent');
+            if (typeof gsap !== 'undefined') {
+                gsap.to(content, { scale: 0.9, opacity: 0, y: 10, duration: 0.2 });
+                gsap.to(modal, { opacity: 0, duration: 0.3, delay: 0.1, onComplete: () => { modal.style.display = 'none'; }});
+            } else {
+                modal.style.display = 'none';
+            }
+        }
+
+        document.getElementById('globalAlertModal').addEventListener('click', function(event) {
+            if (event.target === this) closeGlobalAlert();
+        });
+    </script>
+}

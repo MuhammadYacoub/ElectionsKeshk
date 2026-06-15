@@ -1,0 +1,72 @@
+@model AdvancedVotingSystem.Models.Committee
+@using AdvancedVotingSystem.Extensions
+
+@{
+    ViewData["Title"] = "نتائج اللجنة";
+    Layout = null; // for printing
+    var voterIds = ViewBag.VoterIds as List<int>;
+}
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>محضر نتائج - @Model.Name</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Cairo', sans-serif; }
+        @@media print {
+            .no-print { display: none; }
+            .card { border: none; }
+        }
+    </style>
+</head>
+<body class="p-5">
+    <div class="text-center mb-5 border-bottom pb-4">
+        <h1 class="fw-bold">@Model.Election?.Name</h1>
+        <h2 class="mt-3">محضر فرز أصوات اللجنة: @Model.Name</h2>
+        <p class="lead mt-3">تاريخ الطباعة: @DateTime.Now.ToString("g")</p>
+        <button class="btn btn-primary no-print px-5 fw-bold mt-3" onclick="window.print()">طباعة المحضر</button>
+    </div>
+
+    @if (Model.Election != null)
+    {
+        @foreach (var category in Model.Election.Categories)
+        {
+            <div class="card mb-4 border-dark">
+                <div class="card-header bg-dark text-white">
+                    <h4 class="fw-bold m-0">@category.Name (@category.CategoryType.GetDisplayName())</h4>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-bordered table-striped m-0 fs-5">
+                        <thead>
+                            <tr class="table-active">
+                                <th>المرشح / القرار</th>
+                                <th class="text-center" style="width: 200px;">عدد الأصوات (في هذه اللجنة)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var candidate in category.Candidates)
+                            {
+                                var committeeVotes = candidate.VoteRecords.Count(vr => vr.Selection && voterIds.Contains(vr.VoterId));
+                                <tr>
+                                    <td>@candidate.Name</td>
+                                    <td class="text-center fw-bold fs-4">@committeeVotes</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+    }
+
+    <div class="row mt-5 pt-5 text-center fw-bold fs-5">
+        <div class="col-4">توقيع رئيس اللجنة<br/>..........................</div>
+        <div class="col-4">توقيع أمين الصندوق<br/>..........................</div>
+        <div class="col-4">توقيع المشرف المختص<br/>..........................</div>
+    </div>
+</body>
+</html>

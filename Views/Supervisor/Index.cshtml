@@ -1,0 +1,85 @@
+@model AdvancedVotingSystem.Models.Committee
+@using AdvancedVotingSystem.Models.Enums
+@{
+    ViewData["Title"] = "لوحة تحكم المشرف";
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center"><i class="fas fa-tachometer-alt text-white"></i></div>
+            لوحة تحكم المشرف
+        </h1>
+        <p class="page-subtitle">إدارة اللجنة والإشراف على التصويت</p>
+    </div>
+</div>
+
+<!-- Stats -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
+    <div class="ant-statistic gradient-primary text-white">
+        <div class="ant-statistic-icon bg-white/20"><i class="fas fa-users text-2xl"></i></div>
+        <p class="ant-statistic-title text-white/80">الناخبين المقيدين</p>
+        <p class="ant-statistic-value" data-countup="@Model.Voters.Count">@Model.Voters.Count</p>
+    </div>
+    <div class="ant-statistic gradient-success text-white">
+        <div class="ant-statistic-icon bg-white/20"><i class="fas fa-check-double text-2xl"></i></div>
+        <p class="ant-statistic-title text-white/80">الأصوات المدلى بها</p>
+        <p class="ant-statistic-value" data-countup="@Model.TotalVotesCast">@Model.TotalVotesCast</p>
+    </div>
+    <div class="ant-statistic @(Model.Status == CommitteeStatus.Open ? "gradient-accent" : "gradient-danger") text-white">
+        <div class="ant-statistic-icon bg-white/20"><i class="fas fa-@(Model.Status == CommitteeStatus.Open ? "lock-open" : "lock") text-2xl"></i></div>
+        <p class="ant-statistic-title text-white/80">حالة اللجنة</p>
+        <p class="ant-statistic-value text-2xl">@(Model.Status == CommitteeStatus.Open ? "مفتوحة" : "مغلقة")</p>
+    </div>
+</div>
+
+<!-- Committee Info -->
+<div class="ant-card mb-6">
+    <div class="ant-card-head"><h3 class="ant-card-head-title flex items-center gap-2"><i class="fas fa-building text-primary-500"></i> معلومات اللجنة</h3></div>
+    <div class="ant-card-body">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
+                <i class="fas fa-building text-primary-500 text-lg"></i>
+                <div><span class="text-xs text-gray-500 font-bold">اسم اللجنة</span><p class="text-base font-black text-gray-900">@Model.Name</p></div>
+            </div>
+            <div class="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
+                <i class="fas fa-vote-yea text-primary-500 text-lg"></i>
+                <div><span class="text-xs text-gray-500 font-bold">الانتخابات</span><p class="text-base font-black text-gray-900">@Model.Election?.Name</p></div>
+            </div>
+        </div>
+
+        <div class="mt-5">
+            <a asp-action="PrintVoterList" asp-route-id="@Model.Id" target="_blank" class="ant-btn ant-btn-warning ant-btn-lg">
+                <i class="fas fa-print"></i> طباعة قائمة البطاقات (الباركود)
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Actions -->
+<div class="ant-card">
+    <div class="ant-card-head"><h3 class="ant-card-head-title flex items-center gap-2"><i class="fas fa-cog text-primary-500"></i> إجراءات اللجنة</h3></div>
+    <div class="ant-card-body">
+        @if (Model.Status == CommitteeStatus.Open)
+        {
+            <div class="ant-alert ant-alert-warning mb-5">
+                <i class="fas fa-exclamation-triangle mt-0.5"></i>
+                <span>إغلاق اللجنة إجراء نهائي لا يمكن التراجع عنه وسينهي عملية التصويت.</span>
+            </div>
+            <form asp-action="CloseCommittee" method="post" onsubmit="return confirm('هل أنت متأكد من رغبتك في إغلاق هذه اللجنة؟');">
+                <input type="hidden" name="id" value="@Model.Id" />
+                <button type="submit" class="ant-btn ant-btn-danger ant-btn-lg w-full"><i class="fas fa-lock"></i> إغلاق اللجنة نهائياً</button>
+            </form>
+        }
+        else
+        {
+            <div class="ant-alert ant-alert-info mb-5">
+                <i class="fas fa-info-circle mt-0.5"></i>
+                <span>هذه اللجنة مغلقة. غير مسموح بالتصويت بعد الآن.</span>
+            </div>
+            <a asp-action="PrintResults" asp-route-id="@Model.Id" target="_blank" class="ant-btn ant-btn-primary ant-btn-lg w-full">
+                <i class="fas fa-file-alt"></i> طباعة محضر نتائج اللجنة
+            </a>
+        }
+    </div>
+</div>

@@ -1,0 +1,62 @@
+@model IEnumerable<AdvancedVotingSystem.Models.Election>
+@using AdvancedVotingSystem.Extensions
+@{
+    ViewData["Title"] = "التقارير الشاملة";
+}
+
+<div class="page-header no-print">
+    <div>
+        <h1 class="page-title flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl gradient-success flex items-center justify-center"><i class="fas fa-chart-bar text-white"></i></div>
+            التقارير الشاملة للانتخابات
+        </h1>
+        <p class="page-subtitle">عرض النتائج الإجمالية لجميع الانتخابات</p>
+    </div>
+    <button class="ant-btn ant-btn-default no-print" onclick="window.print()"><i class="fas fa-print"></i> طباعة التقرير</button>
+</div>
+
+@foreach (var election in Model)
+{
+    <div class="ant-card mb-6">
+        <div class="ant-card-head !bg-primary-900 !border-primary-800 !rounded-t-xl">
+            <div>
+                <h3 class="text-white font-black text-lg">@election.Name</h3>
+                <div class="flex items-center gap-3 mt-1">
+                    <span class="ant-tag ant-tag-info text-xs">@election.Status.GetDisplayName()</span>
+                    <span class="text-white/50 text-sm font-medium">@election.Date.ToShortDateString()</span>
+                </div>
+            </div>
+        </div>
+        <div class="ant-card-body bg-gray-50">
+            <h4 class="font-bold text-gray-600 mb-4 flex items-center gap-2"><i class="fas fa-chart-pie text-primary-500"></i> النتائج الإجمالية</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                @foreach (var category in election.Categories)
+                {
+                    <div class="ant-card !rounded-xl">
+                        <div class="px-5 py-3 bg-gray-100 border-b border-gray-200 flex justify-between items-center rounded-t-xl">
+                            <span class="font-bold text-gray-800">@category.Name</span>
+                            <span class="ant-tag ant-tag-info text-xs">@category.CategoryType.GetDisplayName()</span>
+                        </div>
+                        <div class="divide-y divide-gray-100">
+                            @foreach (var candidate in category.Candidates.OrderByDescending(c => c.VoteRecords.Count(vr => vr.Selection)))
+                            {
+                                var voteCount = candidate.VoteRecords.Count(vr => vr.Selection);
+                                var totalVotes = category.Candidates.Sum(c => c.VoteRecords.Count(vr => vr.Selection));
+                                var percentage = totalVotes > 0 ? (double)voteCount / totalVotes * 100 : 0;
+                                <div class="flex items-center justify-between px-5 py-3">
+                                    <span class="font-bold text-gray-800">@candidate.Name</span>
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
+                                            <div class="h-full gradient-primary rounded-full" style="width: @percentage%"></div>
+                                        </div>
+                                        <span class="bg-primary-100 text-primary-700 font-black text-sm px-3 py-1 rounded-lg min-w-[80px] text-center">@voteCount أصوات</span>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}
