@@ -8,14 +8,84 @@
    ============================================ */
 
 @layer base {
+  :root {
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.148 0.004 228.8);
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.148 0.004 228.8);
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.148 0.004 228.8);
+    --primary: oklch(0.555 0.163 48.998);
+    --primary-foreground: oklch(0.987 0.022 95.277);
+    --secondary: oklch(0.967 0.001 286.375);
+    --secondary-foreground: oklch(0.21 0.006 285.885);
+    --muted: oklch(0.963 0.002 197.1);
+    --muted-foreground: oklch(0.56 0.021 213.5);
+    --accent: oklch(0.963 0.002 197.1);
+    --accent-foreground: oklch(0.218 0.008 223.9);
+    --destructive: oklch(0.577 0.245 27.325);
+    --border: oklch(0.925 0.005 214.3);
+    --input: oklch(0.925 0.005 214.3);
+    --ring: oklch(0.723 0.014 214.4);
+    --chart-1: oklch(0.879 0.169 91.605);
+    --chart-2: oklch(0.769 0.188 70.08);
+    --chart-3: oklch(0.666 0.179 58.318);
+    --chart-4: oklch(0.555 0.163 48.998);
+    --chart-5: oklch(0.473 0.137 46.201);
+    --radius: 0.625rem;
+    --sidebar: oklch(0.987 0.002 197.1);
+    --sidebar-foreground: oklch(0.148 0.004 228.8);
+    --sidebar-primary: oklch(0.666 0.179 58.318);
+    --sidebar-primary-foreground: oklch(0.987 0.022 95.277);
+    --sidebar-accent: oklch(0.963 0.002 197.1);
+    --sidebar-accent-foreground: oklch(0.218 0.008 223.9);
+    --sidebar-border: oklch(0.925 0.005 214.3);
+    --sidebar-ring: oklch(0.723 0.014 214.4);
+  }
+
+  .dark {
+    --background: oklch(0.148 0.004 228.8);
+    --foreground: oklch(0.987 0.002 197.1);
+    --card: oklch(0.218 0.008 223.9);
+    --card-foreground: oklch(0.987 0.002 197.1);
+    --popover: oklch(0.218 0.008 223.9);
+    --popover-foreground: oklch(0.987 0.002 197.1);
+    --primary: oklch(0.473 0.137 46.201);
+    --primary-foreground: oklch(0.987 0.022 95.277);
+    --secondary: oklch(0.274 0.006 286.033);
+    --secondary-foreground: oklch(0.985 0 0);
+    --muted: oklch(0.275 0.011 216.9);
+    --muted-foreground: oklch(0.723 0.014 214.4);
+    --accent: oklch(0.275 0.011 216.9);
+    --accent-foreground: oklch(0.987 0.002 197.1);
+    --destructive: oklch(0.704 0.191 22.216);
+    --border: oklch(1 0 0 / 10%);
+    --input: oklch(1 0 0 / 15%);
+    --ring: oklch(0.56 0.021 213.5);
+    --chart-1: oklch(0.879 0.169 91.605);
+    --chart-2: oklch(0.769 0.188 70.08);
+    --chart-3: oklch(0.666 0.179 58.318);
+    --chart-4: oklch(0.555 0.163 48.998);
+    --chart-5: oklch(0.473 0.137 46.201);
+    --sidebar: oklch(0.218 0.008 223.9);
+    --sidebar-foreground: oklch(0.987 0.002 197.1);
+    --sidebar-primary: oklch(0.769 0.188 70.08);
+    --sidebar-primary-foreground: oklch(0.279 0.077 45.635);
+    --sidebar-accent: oklch(0.275 0.011 216.9);
+    --sidebar-accent-foreground: oklch(0.987 0.002 197.1);
+    --sidebar-border: oklch(1 0 0 / 10%);
+    --sidebar-ring: oklch(0.56 0.021 213.5);
+  }
+
   * {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    @apply border-border;
   }
 
   body {
     font-family: 'Cairo', sans-serif;
-    color: #1e293b;
+    @apply bg-background text-foreground;
   }
 
   ::selection {
@@ -84,18 +154,18 @@
 
   /* ---- Cards ---- */
   .ant-card {
-    @apply bg-white rounded-2xl border border-slate-200/60 overflow-hidden;
+    @apply bg-card text-card-foreground rounded-xl border border-border overflow-hidden;
     box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.02);
     transition: box-shadow 0.3s ease, transform 0.3s ease;
   }
   .ant-card:hover {
-    box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.04);
   }
   .ant-card-head {
-    @apply px-6 py-4 border-b border-slate-100 flex items-center justify-between;
+    @apply px-6 py-4 border-b border-border flex items-center justify-between;
   }
   .ant-card-head-title {
-    @apply text-lg font-bold text-slate-800;
+    @apply text-base font-bold text-foreground;
   }
   .ant-card-body {
     @apply p-6;
@@ -103,22 +173,22 @@
 
   /* ---- Statistic Cards ---- */
   .ant-statistic {
-    @apply relative overflow-hidden rounded-2xl p-6 bg-white border border-slate-200/60;
+    @apply relative overflow-hidden rounded-xl p-5 bg-card text-card-foreground border border-border flex flex-col justify-between min-h-[120px];
     box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.02);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
   }
   .ant-statistic:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.05);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.04);
   }
   .ant-statistic-title {
-    @apply text-sm font-bold text-slate-400 mb-1;
+    @apply text-xs font-bold text-muted-foreground mb-1 uppercase tracking-wider;
   }
   .ant-statistic-value {
-    @apply text-3xl font-black text-slate-800 tracking-tight;
+    @apply text-2xl font-black text-foreground tracking-tight font-numerals;
   }
   .ant-statistic-icon {
-    @apply absolute top-4 left-4 w-12 h-12 rounded-xl flex items-center justify-center;
+    @apply absolute top-4 left-4 w-10 h-10 rounded-lg flex items-center justify-center;
   }
 
   /* ---- Tables ---- */
@@ -175,7 +245,7 @@
     @apply w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-sm font-medium transition-all duration-200;
   }
   .ant-form-control:focus {
-    @apply border-primary-500 ring-4 ring-primary-500/10 outline-none bg-white;
+    @apply border-primary ring-4 ring-primary-100 outline-none bg-white;
   }
   .ant-form-control::placeholder {
     @apply text-gray-400 font-normal;
@@ -193,7 +263,7 @@
     padding-left: 36px;
   }
   .ant-select:focus {
-    @apply border-primary-500 ring-4 ring-primary-500/10 outline-none;
+    @apply border-primary ring-4 ring-primary-100 outline-none;
   }
 
   /* ---- Switch ---- */
@@ -286,22 +356,24 @@
 
   /* ---- Sidebar ---- */
   .sidebar {
-    @apply fixed top-0 right-0 h-full z-40 bg-white border-l border-slate-200/50;
+    @apply fixed top-0 right-0 h-full z-40 bg-sidebar border-l border-sidebar-border;
     width: 280px;
     box-shadow: -4px 0 20px -5px rgba(0, 0, 0, 0.04);
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
   .sidebar-brand {
-    @apply flex items-center gap-3 px-5 py-6 border-b border-slate-100;
+    @apply flex items-center gap-3 px-5 py-6 border-b border-sidebar-border;
   }
   .sidebar-nav-item {
-    @apply flex items-center gap-3 px-5 py-3 text-sm font-bold text-slate-500 rounded-xl mx-3 my-0.5 transition-all duration-200 cursor-pointer;
+    @apply flex items-center gap-3 px-5 py-3 text-sm font-bold text-sidebar-foreground rounded-xl mx-3 my-0.5 transition-all duration-200 cursor-pointer;
+    opacity: 0.75;
   }
   .sidebar-nav-item:hover {
-    @apply bg-slate-50 text-primary-500;
+    @apply bg-sidebar-accent text-foreground;
+    opacity: 1;
   }
   .sidebar-nav-item.active {
-    @apply bg-primary-50/50 text-primary-600 border-r-4 border-primary-500 rounded-r-none;
+    @apply bg-sidebar-accent text-sidebar-primary-foreground border-r-4 border-sidebar-primary rounded-r-none;
   }
 
   /* ---- Page Header ---- */

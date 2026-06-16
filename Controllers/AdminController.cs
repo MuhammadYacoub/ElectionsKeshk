@@ -19,12 +19,44 @@ namespace AdvancedVotingSystem.Controllers
 
         public async Task<IActionResult> Index()
         {
+            var totalElections = await _context.Elections.CountAsync();
+            var activeElections = await _context.Elections.CountAsync(e => e.Status == Models.Enums.ElectionStatus.Active);
+            var totalCommittees = await _context.Committees.CountAsync();
+            var totalVoters = await _context.Voters.CountAsync();
+
+            var recentVoters = await _context.Voters
+                .Include(v => v.Committee)
+                .Where(v => v.HasVoted)
+                .OrderByDescending(v => v.Id)
+                .Take(7)
+                .Select(v => new VoterDashboardDto
+                {
+                    VoterName = v.FullName,
+                    NationalId = v.NationalId ?? v.LoginIdentifier,
+                    CommitteeName = v.Committee != null ? v.Committee.Name : "غير محدد"
+                })
+                .ToListAsync();
+
+            var committees = await _context.Committees
+                .Include(c => c.Election)
+                .Select(c => new CommitteeDashboardDto
+                {
+                    Name = c.Name,
+                    ElectionName = c.Election != null ? c.Election.Name : "غير محدد",
+                    TotalVoters = c.RegisteredVotersCount,
+                    VotesCast = c.TotalVotesCast,
+                    Status = c.Status.ToString()
+                })
+                .ToListAsync();
+
             var model = new DashboardViewModel
             {
-                TotalElections = await _context.Elections.CountAsync(),
-                ActiveElections = await _context.Elections.CountAsync(e => e.Status == Models.Enums.ElectionStatus.Active),
-                TotalCommittees = await _context.Committees.CountAsync(),
-                TotalVoters = await _context.Voters.CountAsync()
+                TotalElections = totalElections,
+                ActiveElections = activeElections,
+                TotalCommittees = totalCommittees,
+                TotalVoters = totalVoters,
+                RecentVoters = recentVoters,
+                Committees = committees
             };
             
             return View(model);
