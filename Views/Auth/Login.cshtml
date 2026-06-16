@@ -54,7 +54,7 @@
 </head>
 <body class="login-bg min-h-screen flex items-center justify-center p-4">
 
-    <div class="w-full max-w-5xl flex rounded-3xl overflow-hidden shadow-2xl gsap-scale-in" style="min-height: 560px;">
+    <div id="loginCard" class="w-full max-w-5xl flex rounded-3xl overflow-hidden shadow-2xl" style="min-height: 560px;">
 
         <!-- Right Panel - Decorative -->
         <div class="hidden lg:flex flex-col items-center justify-center w-5/12 login-decoration p-12 relative">
@@ -176,8 +176,8 @@
             // Animate form
             gsap.from('.ant-form-item', { x: 30, opacity: 0, duration: 0.5, stagger: 0.1, ease: 'power2.out', delay: 0.4 });
 
-            // Animate scale-in
-            gsap.from('.gsap-scale-in', { scale: 0.9, opacity: 0, duration: 0.6, ease: 'power3.out' });
+            // Animate login card
+            gsap.from('#loginCard', { scale: 0.9, opacity: 0, duration: 0.6, ease: 'power3.out' });
         });
     </script>
 </body>

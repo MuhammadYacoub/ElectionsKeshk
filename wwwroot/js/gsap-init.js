@@ -9,72 +9,51 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // ---- Page Load Animations ---- //
 
-    // Animate sidebar nav items
-    gsap.from('.sidebar-nav-item', {
-        x: 30,
-        opacity: 0,
-        duration: 0.4,
-        stagger: 0.05,
-        ease: 'power2.out',
-        delay: 0.2
-    });
+    // Animate statistic cards with stagger (dashboard contents)
+    if (document.querySelector('.ant-statistic')) {
+        gsap.from('.ant-statistic', {
+            y: 15,
+            opacity: 0,
+            duration: 0.4,
+            stagger: 0.06,
+            ease: 'power2.out',
+            delay: 0.1
+        });
+    }
 
-    // Animate page header
-    gsap.from('.page-header', {
-        y: -20,
-        opacity: 0,
-        duration: 0.5,
-        ease: 'power2.out',
-        delay: 0.1
-    });
-
-    // Animate statistic cards with stagger
-    gsap.from('.ant-statistic', {
-        y: 30,
-        opacity: 0,
-        duration: 0.6,
-        stagger: 0.1,
-        ease: 'power3.out',
-        delay: 0.2
-    });
-
-    // Animate cards with stagger
-    gsap.from('.ant-card', {
-        y: 20,
-        opacity: 0,
-        duration: 0.5,
-        stagger: 0.08,
-        ease: 'power2.out',
-        delay: 0.3
-    });
+    // Animate content cards with stagger
+    if (document.querySelector('.ant-card')) {
+        gsap.from('.ant-card', {
+            y: 10,
+            opacity: 0,
+            duration: 0.4,
+            stagger: 0.05,
+            ease: 'power2.out',
+            delay: 0.15
+        });
+    }
 
     // Animate table rows
-    gsap.from('.ant-table tbody tr', {
-        x: 20,
-        opacity: 0,
-        duration: 0.4,
-        stagger: 0.03,
-        ease: 'power2.out',
-        delay: 0.3
-    });
-
-    // Animate buttons in page header
-    gsap.from('.page-header .ant-btn', {
-        scale: 0.9,
-        opacity: 0,
-        duration: 0.4,
-        stagger: 0.1,
-        ease: 'back.out(1.7)',
-        delay: 0.4
-    });
+    if (document.querySelector('.ant-table tbody tr')) {
+        gsap.from('.ant-table tbody tr', {
+            x: 10,
+            opacity: 0,
+            duration: 0.3,
+            stagger: 0.02,
+            ease: 'power2.out',
+            delay: 0.2
+        });
+    }
 
     // Animate alert messages
-    gsap.from('.ant-alert', {
-        y: -10,
-        opacity: 0,
-        duration: 0.5,
-        ease: 'power2.out'
-    });
+    if (document.querySelector('.ant-alert')) {
+        gsap.from('.ant-alert', {
+            y: -10,
+            opacity: 0,
+            duration: 0.4,
+            ease: 'power2.out'
+        });
+    }
 
     // ---- GSAP Utility Functions ---- //
 

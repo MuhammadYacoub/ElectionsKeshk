@@ -7,49 +7,73 @@
 <div class="page-header no-print">
     <div>
         <h1 class="page-title flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl gradient-success flex items-center justify-center"><i class="fas fa-chart-bar text-white"></i></div>
+            <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100/50">
+                <i class="fas fa-chart-bar text-sm"></i>
+            </div>
             التقارير الشاملة للانتخابات
         </h1>
-        <p class="page-subtitle">عرض النتائج الإجمالية لجميع الانتخابات</p>
+        <p class="page-subtitle">عرض النتائج الإجمالية والنسب المئوية لجميع الانتخابات</p>
     </div>
-    <button class="ant-btn ant-btn-default no-print" onclick="window.print()"><i class="fas fa-print"></i> طباعة التقرير</button>
+    <button class="ant-btn ant-btn-default no-print" onclick="window.print()">
+        <i class="fas fa-print text-slate-400"></i> طباعة التقرير
+    </button>
 </div>
 
 @foreach (var election in Model)
 {
-    <div class="ant-card mb-6">
-        <div class="ant-card-head !bg-primary-900 !border-primary-800 !rounded-t-xl">
+    <div class="ant-card mb-8">
+        <div class="ant-card-head !bg-slate-50/50 border-b border-slate-200/50">
             <div>
-                <h3 class="text-white font-black text-lg">@election.Name</h3>
-                <div class="flex items-center gap-3 mt-1">
-                    <span class="ant-tag ant-tag-info text-xs">@election.Status.GetDisplayName()</span>
-                    <span class="text-white/50 text-sm font-medium">@election.Date.ToShortDateString()</span>
+                <h3 class="text-slate-800 font-black text-base">@election.Name</h3>
+                <div class="flex items-center gap-3 mt-1.5">
+                    @if (election.Status == AdvancedVotingSystem.Models.Enums.ElectionStatus.Active)
+                    {
+                        <span class="ant-tag ant-tag-success text-[10px]"><span class="ant-tag-dot bg-success-500"></span> نشطة حالياً</span>
+                    }
+                    else if (election.Status == AdvancedVotingSystem.Models.Enums.ElectionStatus.Closed)
+                    {
+                        <span class="ant-tag ant-tag-default text-[10px]"><span class="ant-tag-dot bg-slate-400"></span> منتهية</span>
+                    }
+                    else
+                    {
+                        <span class="ant-tag ant-tag-info text-[10px]"><span class="ant-tag-dot bg-blue-500"></span> مسودة</span>
+                    }
+                    <span class="text-slate-400 text-xs font-bold"><i class="far fa-calendar-alt ml-1"></i> @election.Date.ToShortDateString()</span>
                 </div>
             </div>
         </div>
-        <div class="ant-card-body bg-gray-50">
-            <h4 class="font-bold text-gray-600 mb-4 flex items-center gap-2"><i class="fas fa-chart-pie text-primary-500"></i> النتائج الإجمالية</h4>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        
+        <div class="ant-card-body bg-white">
+            <h4 class="font-bold text-sm text-slate-500 mb-5 flex items-center gap-2">
+                <i class="fas fa-chart-pie text-slate-400"></i> تفاصيل النتائج الإجمالية حسب الفئات
+            </h4>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 @foreach (var category in election.Categories)
                 {
-                    <div class="ant-card !rounded-xl">
-                        <div class="px-5 py-3 bg-gray-100 border-b border-gray-200 flex justify-between items-center rounded-t-xl">
-                            <span class="font-bold text-gray-800">@category.Name</span>
-                            <span class="ant-tag ant-tag-info text-xs">@category.CategoryType.GetDisplayName()</span>
+                    <div class="border border-slate-200/50 rounded-xl overflow-hidden bg-white">
+                        <div class="px-5 py-3.5 bg-slate-50 border-b border-slate-200/40 flex justify-between items-center">
+                            <span class="font-bold text-sm text-slate-800">@category.Name</span>
+                            <span class="ant-tag ant-tag-info text-[10px]">@category.CategoryType.GetDisplayName()</span>
                         </div>
-                        <div class="divide-y divide-gray-100">
+                        <div class="divide-y divide-slate-100">
                             @foreach (var candidate in category.Candidates.OrderByDescending(c => c.VoteRecords.Count(vr => vr.Selection)))
                             {
                                 var voteCount = candidate.VoteRecords.Count(vr => vr.Selection);
                                 var totalVotes = category.Candidates.Sum(c => c.VoteRecords.Count(vr => vr.Selection));
                                 var percentage = totalVotes > 0 ? (double)voteCount / totalVotes * 100 : 0;
-                                <div class="flex items-center justify-between px-5 py-3">
-                                    <span class="font-bold text-gray-800">@candidate.Name</span>
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
-                                            <div class="h-full gradient-primary rounded-full" style="width: @percentage%"></div>
+                                <div class="flex items-center justify-between px-5 py-4 hover:bg-slate-50/30 transition-colors">
+                                    <div class="flex flex-col">
+                                        <span class="font-bold text-sm text-slate-700">@candidate.Name</span>
+                                    </div>
+                                    <div class="flex items-center gap-4">
+                                        <!-- Clean Light Progress bar -->
+                                        <div class="w-24 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                            <div class="h-full bg-primary-500 rounded-full" style="width: @percentage%"></div>
                                         </div>
-                                        <span class="bg-primary-100 text-primary-700 font-black text-sm px-3 py-1 rounded-lg min-w-[80px] text-center">@voteCount أصوات</span>
+                                        <span class="bg-slate-50 text-slate-700 border border-slate-200/50 font-black text-xs px-2.5 py-1 rounded-lg min-w-[75px] text-center">
+                                            @voteCount أصوات
+                                        </span>
                                     </div>
                                 </div>
                             }
