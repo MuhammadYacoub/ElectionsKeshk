@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 // Simulated Shadcn UI Imports
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -41,7 +41,7 @@ const MOCK_CATEGORIES: SeatCategory[] = [
   },
   {
     id: 'board-members-cairo',
-    title: 'أعضاء مجلس الإدارة (محكمة استئناف القاهرة)',
+    title: 'أعضاء مجلس الإدارة (استئناف القاهرة)',
     availableSeats: 3,
     totalVotesCast: 12000,
     candidates: [
@@ -60,26 +60,25 @@ export default function LiveTallyingGrid() {
 
   const handleGenerateReport = () => {
     setIsGeneratingReport(true);
-    // Simulate generation time
     setTimeout(() => setIsGeneratingReport(false), 2000);
   };
 
   return (
-    <div dir="rtl" className="min-h-screen bg-slate-50 font-arabic flex flex-col">
-      {/* Header Controls */}
-      <div className="bg-white p-4 border-b border-slate-200 shadow-sm flex items-center justify-between sticky top-0 z-20">
+    <div dir="rtl" className="min-h-screen bg-background font-arabic flex flex-col selection:bg-primary/30">
+      {/* Header Controls - Premium Glass/Solid Treatment */}
+      <div className="bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60 p-4 border-b border-border shadow-sm flex items-center justify-between sticky top-0 z-20">
         <div>
-          <h2 className="text-xl font-bold text-[#0B1C3C]">شاشة الفرز المباشر (Live Tallying)</h2>
-          <p className="text-sm text-slate-500">تحديث فوري للنتائج بناءً على الخوارزميات المعتمدة.</p>
+          <h2 className="text-xl font-bold text-foreground tracking-tight">شاشة الفرز المباشر (Live Tallying)</h2>
+          <p className="text-xs text-muted-foreground font-medium mt-0.5">تحديث فوري للنتائج بناءً على الخوارزميات المعتمدة.</p>
         </div>
 
-        <div className="flex items-center gap-4">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-[400px]">
-            <TabsList className="grid w-full grid-cols-2 bg-slate-100 p-1 rounded-md">
-              <TabsTrigger value="general" className="data-[state=active]:bg-white data-[state=active]:text-[#0B1C3C] data-[state=active]:shadow-sm text-slate-600 font-bold">
+        <div className="flex items-center gap-6">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-[380px]">
+            <TabsList className="grid w-full grid-cols-2 bg-muted p-1 rounded-lg border border-border">
+              <TabsTrigger value="general" className="data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm text-muted-foreground font-bold text-xs">
                 النقابة العامة
               </TabsTrigger>
-              <TabsTrigger value="branches" className="data-[state=active]:bg-white data-[state=active]:text-[#0B1C3C] data-[state=active]:shadow-sm text-slate-600 font-bold">
+              <TabsTrigger value="branches" className="data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm text-muted-foreground font-bold text-xs">
                 النقابات الفرعية
               </TabsTrigger>
             </TabsList>
@@ -88,9 +87,9 @@ export default function LiveTallyingGrid() {
           <Button
             onClick={handleGenerateReport}
             disabled={isGeneratingReport}
-            className="bg-[#C5A059] hover:bg-[#b08d4b] text-[#0B1C3C] font-bold"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold shadow-md shadow-primary/20 transition-all active:scale-95"
           >
-            {isGeneratingReport ? 'جاري إنشاء المحضر...' : 'إصدار محضر الفرز (PDF)'}
+            {isGeneratingReport ? 'جاري الإنشاء...' : 'إصدار المحضر (PDF)'}
             {!isGeneratingReport && (
               <svg className="w-4 h-4 ms-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
             )}
@@ -98,82 +97,95 @@ export default function LiveTallyingGrid() {
         </div>
       </div>
 
-      {/* Grid Content */}
-      <main className="flex-1 p-6">
-        <TabsContent value="general" className="mt-0 outline-none">
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+      {/* Grid Content - High Density Cards */}
+      <main className="flex-1 p-6 bg-background/50">
+        <TabsContent value="general" className="mt-0 outline-none focus-visible:ring-0">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
 
             {MOCK_CATEGORIES.map((category) => (
-              <Card key={category.id} className="shadow-md border-slate-200 overflow-hidden flex flex-col">
+              <Card key={category.id} className="bg-card border-border shadow-lg overflow-hidden flex flex-col hover:shadow-xl transition-shadow duration-300">
                 {/* Category Header */}
-                <div className="bg-[#0B1C3C] p-4 text-white flex justify-between items-center border-b-4 border-[#C5A059]">
-                  <div>
-                    <h3 className="text-lg font-bold">{category.title}</h3>
-                    <p className="text-xs text-slate-300">عدد المقاعد المتاحة: {category.availableSeats}</p>
-                  </div>
-                  <div className="text-end">
-                    <p className="text-xs text-slate-300">إجمالي الأصوات الصحيحة</p>
-                    <p className="text-xl font-numerals font-bold">{category.totalVotesCast.toLocaleString('ar-EG')}</p>
+                <div className="bg-muted/40 p-5 border-b border-border relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-full h-1 bg-gradient-to-l from-primary to-transparent"></div>
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="text-lg font-black text-foreground tracking-tight">{category.title}</h3>
+                      <div className="flex items-center gap-2 mt-2">
+                        <Badge variant="outline" className="bg-background text-xs font-medium text-muted-foreground">
+                          المقاعد: {category.availableSeats}
+                        </Badge>
+                      </div>
+                    </div>
+                    <div className="text-end bg-background px-4 py-2 rounded-lg border border-border shadow-sm">
+                      <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider mb-0.5">إجمالي الأصوات</p>
+                      <p className="text-2xl font-numerals font-black text-primary leading-none">{category.totalVotesCast.toLocaleString('ar-EG')}</p>
+                    </div>
                   </div>
                 </div>
 
                 {/* Candidates List */}
-                <CardContent className="p-0 flex-1 bg-white">
+                <CardContent className="p-0 flex-1 bg-card">
                   <div className="flex flex-col">
                     {category.candidates.map((candidate, index) => (
                       <motion.div
                         key={candidate.id}
-                        initial={{ opacity: 0, x: 20 }}
+                        initial={{ opacity: 0, x: 10 }}
                         animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.1 }}
-                        className={`flex items-center gap-4 p-4 border-b border-slate-100 last:border-0 relative ${
-                          candidate.isWinner ? 'bg-green-50/50' : 'hover:bg-slate-50'
+                        transition={{ delay: index * 0.05 }}
+                        className={`flex items-center gap-4 p-4 border-b border-border/50 last:border-0 relative group transition-colors ${
+                          candidate.isWinner ? 'bg-primary/5 hover:bg-primary/10' : 'hover:bg-muted/50'
                         }`}
                       >
-                        {/* Winner Indicator / Rank */}
-                        <div className="w-8 flex justify-center items-center font-numerals font-bold text-slate-400">
+                        {candidate.isWinner && (
+                          <div className="absolute top-0 bottom-0 right-0 w-1 bg-primary"></div>
+                        )}
+
+                        {/* Rank */}
+                        <div className="w-6 flex justify-center items-center font-numerals font-bold text-muted-foreground text-sm">
                           {index + 1}
                         </div>
 
-                        {/* Avatar */}
-                        <div className={`w-12 h-12 rounded-full bg-slate-200 flex-shrink-0 border-2 overflow-hidden flex items-center justify-center ${
-                          candidate.isWinner ? 'border-[#C5A059]' : 'border-transparent'
+                        {/* Avatar / Placeholder */}
+                        <div className={`w-12 h-12 rounded-full bg-muted flex-shrink-0 flex items-center justify-center ring-2 ring-offset-2 ring-offset-card transition-all ${
+                          candidate.isWinner ? 'ring-primary' : 'ring-transparent group-hover:ring-border'
                         }`}>
-                          <span className="text-slate-400 text-xs">صورة</span>
+                          <svg className="w-6 h-6 text-muted-foreground/50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                         </div>
 
                         {/* Details & Progress */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex justify-between items-end mb-1">
-                            <h4 className="font-bold text-[#0B1C3C] truncate pr-1">
+                        <div className="flex-1 min-w-0 pr-2">
+                          <div className="flex justify-between items-center mb-2">
+                            <h4 className="font-bold text-foreground truncate text-sm flex items-center gap-2">
                               {candidate.name}
                               {candidate.isWinner && (
-                                <Badge className="ms-2 bg-[#C5A059] text-[#0B1C3C] hover:bg-[#C5A059] border-none text-[10px]">
-                                  حسم المقعد
+                                <Badge className="bg-primary text-primary-foreground hover:bg-primary/90 border-transparent text-[9px] px-1.5 py-0 uppercase tracking-widest">
+                                  حسم
                                 </Badge>
                               )}
                             </h4>
-                            <div className="text-end">
-                              <span className="font-numerals font-bold text-lg text-[#0B1C3C]">{candidate.percentage}%</span>
+                            <div className="text-end pl-2">
+                              <span className={`font-numerals font-black text-lg ${candidate.isWinner ? 'text-primary' : 'text-foreground'}`}>
+                                {candidate.percentage}%
+                              </span>
                             </div>
                           </div>
 
-                          <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-4">
                             <Progress
                               value={candidate.percentage}
-                              className={`h-2 flex-1 ${candidate.isWinner ? '[&>div]:bg-[#C5A059]' : '[&>div]:bg-[#0B1C3C]'}`}
+                              className={`h-2 flex-1 bg-muted/80 overflow-hidden ${candidate.isWinner ? '[&>div]:bg-primary' : '[&>div]:bg-foreground/40 group-hover:[&>div]:bg-foreground/60 transition-colors'}`}
                             />
-                            <span className="text-xs font-numerals text-slate-500 min-w-[60px] text-end">
-                              {candidate.votes.toLocaleString('ar-EG')} صوت
+                            <span className="text-[11px] font-numerals font-medium text-muted-foreground min-w-[70px] text-end bg-background px-2 py-0.5 rounded border border-border/50">
+                              {candidate.votes.toLocaleString('ar-EG')}
                             </span>
                           </div>
                         </div>
 
                         {/* Trend Indicator */}
-                        <div className="w-8 flex justify-center">
-                           {candidate.trend === 'up' && <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>}
-                           {candidate.trend === 'down' && <svg className="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 17h8m0 0v-8m0 8l-8-8-4 4-6-6"></path></svg>}
-                           {candidate.trend === 'stable' && <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 12h14"></path></svg>}
+                        <div className="w-8 flex justify-center items-center pl-2">
+                           {candidate.trend === 'up' && <div className="w-6 h-6 rounded-full bg-chart-2/10 flex items-center justify-center"><svg className="w-3.5 h-3.5 text-chart-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg></div>}
+                           {candidate.trend === 'down' && <div className="w-6 h-6 rounded-full bg-destructive/10 flex items-center justify-center"><svg className="w-3.5 h-3.5 text-destructive" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg></div>}
+                           {candidate.trend === 'stable' && <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center"><svg className="w-3.5 h-3.5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 12h14"></path></svg></div>}
                         </div>
                       </motion.div>
                     ))}
@@ -185,8 +197,14 @@ export default function LiveTallyingGrid() {
         </TabsContent>
 
         <TabsContent value="branches">
-          <div className="flex items-center justify-center h-64 text-slate-500 border-2 border-dashed border-slate-200 rounded-lg">
-            يرجى تحديد النقابة الفرعية من القائمة الجانبية لعرض النتائج (قيد التطوير)
+          <div className="flex items-center justify-center h-[60vh] bg-card rounded-xl border border-dashed border-border/60 shadow-sm">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4 text-muted-foreground">
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+              </div>
+              <h3 className="text-lg font-bold text-foreground mb-1">حدد النقابة الفرعية</h3>
+              <p className="text-sm text-muted-foreground">يرجى اختيار النقابة من القائمة لعرض نتائج الفرز.</p>
+            </div>
           </div>
         </TabsContent>
       </main>
