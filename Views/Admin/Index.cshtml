@@ -6,53 +6,73 @@
 <!-- Statistics Cards -->
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
     <!-- Total Voters -->
-    <div class="ant-statistic">
-        <div class="ant-statistic-icon bg-blue-50 text-blue-600">
-            <i class="fas fa-users text-lg"></i>
+    <div class="ant-statistic relative group overflow-hidden">
+        <div class="absolute top-0 right-0 w-1 h-full bg-primary/60"></div>
+        <div class="flex justify-between items-start">
+            <div class="flex-grow">
+                <p class="ant-statistic-title">إجمالي الناخبين</p>
+                <p class="ant-statistic-value mt-1.5" data-countup="@Model.TotalVoters">@Model.TotalVoters</p>
+            </div>
+            <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 bg-primary/10 text-primary border border-primary/20 transition-all group-hover:scale-105">
+                <i class="fas fa-users text-sm"></i>
+            </div>
         </div>
-        <p class="ant-statistic-title">إجمالي الناخبين</p>
-        <p class="ant-statistic-value" data-countup="@Model.TotalVoters">@Model.TotalVoters</p>
-        <div class="mt-3 flex items-center gap-1.5 text-xs text-slate-400 font-bold">
-            <i class="fas fa-chart-line text-blue-500"></i>
+        <div class="mt-4 flex items-center gap-1.5 text-[10px] text-muted-foreground font-bold border-t border-border/40 pt-2">
+            <i class="fas fa-chart-line text-primary/70"></i>
             <span>المسجلين في النظام</span>
         </div>
     </div>
 
     <!-- Total Committees -->
-    <div class="ant-statistic">
-        <div class="ant-statistic-icon bg-cyan-50 text-cyan-600">
-            <i class="fas fa-building text-lg"></i>
+    <div class="ant-statistic relative group overflow-hidden">
+        <div class="absolute top-0 right-0 w-1 h-full bg-chart-2/70"></div>
+        <div class="flex justify-between items-start">
+            <div class="flex-grow">
+                <p class="ant-statistic-title">إجمالي اللجان</p>
+                <p class="ant-statistic-value mt-1.5" data-countup="@Model.TotalCommittees">@Model.TotalCommittees</p>
+            </div>
+            <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 bg-chart-2/15 text-chart-2 border border-chart-2/20 transition-all group-hover:scale-105">
+                <i class="fas fa-building text-sm"></i>
+            </div>
         </div>
-        <p class="ant-statistic-title">إجمالي اللجان</p>
-        <p class="ant-statistic-value" data-countup="@Model.TotalCommittees">@Model.TotalCommittees</p>
-        <div class="mt-3 flex items-center gap-1.5 text-xs text-slate-400 font-bold">
-            <i class="fas fa-sitemap text-cyan-500"></i>
+        <div class="mt-4 flex items-center gap-1.5 text-[10px] text-muted-foreground font-bold border-t border-border/40 pt-2">
+            <i class="fas fa-sitemap text-chart-2/70"></i>
             <span>لجنة انتخابية مفعلة</span>
         </div>
     </div>
 
     <!-- Active Elections -->
-    <div class="ant-statistic">
-        <div class="ant-statistic-icon bg-emerald-50 text-emerald-600">
-            <i class="fas fa-check-circle text-lg"></i>
+    <div class="ant-statistic relative group overflow-hidden">
+        <div class="absolute top-0 right-0 w-1 h-full bg-emerald-500/60"></div>
+        <div class="flex justify-between items-start">
+            <div class="flex-grow">
+                <p class="ant-statistic-title">الانتخابات النشطة</p>
+                <p class="ant-statistic-value mt-1.5" data-countup="@Model.ActiveElections">@Model.ActiveElections</p>
+            </div>
+            <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 transition-all group-hover:scale-105">
+                <i class="fas fa-check-circle text-sm"></i>
+            </div>
         </div>
-        <p class="ant-statistic-title">الانتخابات النشطة</p>
-        <p class="ant-statistic-value" data-countup="@Model.ActiveElections">@Model.ActiveElections</p>
-        <div class="mt-3 flex items-center gap-1.5 text-xs text-slate-400 font-bold">
-            <i class="fas fa-bolt text-emerald-500 animate-pulse"></i>
+        <div class="mt-4 flex items-center gap-1.5 text-[10px] text-muted-foreground font-bold border-t border-border/40 pt-2">
+            <i class="fas fa-bolt text-emerald-500/70 animate-pulse"></i>
             <span>عملية تصويت جارية الآن</span>
         </div>
     </div>
 
     <!-- Total Elections -->
-    <div class="ant-statistic">
-        <div class="ant-statistic-icon bg-indigo-50 text-indigo-600">
-            <i class="fas fa-vote-yea text-lg"></i>
+    <div class="ant-statistic relative group overflow-hidden">
+        <div class="absolute top-0 right-0 w-1 h-full bg-amber-500/60"></div>
+        <div class="flex justify-between items-start">
+            <div class="flex-grow">
+                <p class="ant-statistic-title">إجمالي الانتخابات</p>
+                <p class="ant-statistic-value mt-1.5" data-countup="@Model.TotalElections">@Model.TotalElections</p>
+            </div>
+            <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 bg-amber-500/10 text-amber-600 border border-amber-500/20 transition-all group-hover:scale-105">
+                <i class="fas fa-vote-yea text-sm"></i>
+            </div>
         </div>
-        <p class="ant-statistic-title">إجمالي الانتخابات</p>
-        <p class="ant-statistic-value" data-countup="@Model.TotalElections">@Model.TotalElections</p>
-        <div class="mt-3 flex items-center gap-1.5 text-xs text-slate-400 font-bold">
-            <i class="fas fa-database text-indigo-500"></i>
+        <div class="mt-4 flex items-center gap-1.5 text-[10px] text-muted-foreground font-bold border-t border-border/40 pt-2">
+            <i class="fas fa-database text-amber-500/70"></i>
             <span>سجلات الانتخابات بقاعدة البيانات</span>
         </div>
     </div>
@@ -60,79 +80,235 @@
 
 <!-- Quick Actions Section Header -->
 <div class="mb-4">
-    <h3 class="text-sm font-black text-slate-400 uppercase tracking-wider">عمليات الإدارة السريعة</h3>
+    <h3 class="text-xs font-black text-muted-foreground uppercase tracking-wider">عمليات الإدارة السريعة</h3>
 </div>
 
 <!-- Quick Actions -->
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-8">
     <!-- Elections Management -->
-    <a asp-controller="Elections" asp-action="Index" class="ant-card group cursor-pointer hover:border-primary-300/80 transition-all duration-300">
+    <a asp-controller="Elections" asp-action="Index" class="ant-card group cursor-pointer hover:border-primary/50 transition-all duration-300">
         <div class="ant-card-body flex items-center gap-5">
-            <div class="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
-                <i class="fas fa-vote-yea text-xl"></i>
+            <div class="w-12 h-12 rounded-xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform duration-300">
+                <i class="fas fa-vote-yea text-base"></i>
             </div>
             <div class="flex-1">
-                <h3 class="text-base font-bold text-slate-800 mb-0.5 group-hover:text-primary-600 transition-colors">إدارة الانتخابات</h3>
-                <p class="text-xs text-slate-400 font-medium">إضافة وتعديل وإدارة الهيكل التنظيمي للعملية الانتخابية</p>
+                <h3 class="text-sm font-bold text-foreground mb-0.5 group-hover:text-primary transition-colors">إدارة الانتخابات</h3>
+                <p class="text-[11px] text-muted-foreground font-medium">إضافة وتعديل وإدارة الهيكل التنظيمي للعملية الانتخابية</p>
             </div>
-            <i class="fas fa-chevron-left text-slate-300 group-hover:text-primary-500 transition-all duration-300 transform group-hover:-translate-x-1"></i>
+            <i class="fas fa-chevron-left text-muted-foreground/50 group-hover:text-primary transition-all duration-300 transform group-hover:-translate-x-1"></i>
         </div>
     </a>
 
     <!-- Committees Management -->
-    <a asp-controller="Committees" asp-action="Index" class="ant-card group cursor-pointer hover:border-cyan-300/80 transition-all duration-300">
+    <a asp-controller="Committees" asp-action="Index" class="ant-card group cursor-pointer hover:border-chart-2/50 transition-all duration-300">
         <div class="ant-card-body flex items-center gap-5">
-            <div class="w-14 h-14 rounded-2xl bg-cyan-50 text-cyan-600 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
-                <i class="fas fa-building text-xl"></i>
+            <div class="w-12 h-12 rounded-xl bg-chart-2/15 text-chart-2 border border-chart-2/20 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform duration-300">
+                <i class="fas fa-building text-base"></i>
             </div>
             <div class="flex-1">
-                <h3 class="text-base font-bold text-slate-800 mb-0.5 group-hover:text-cyan-600 transition-colors">إدارة اللجان</h3>
-                <p class="text-xs text-slate-400 font-medium">إنشاء وتوزيع اللجان الفرعية وتسكين رؤساء اللجان والمساعدين</p>
+                <h3 class="text-sm font-bold text-foreground mb-0.5 group-hover:text-chart-2 transition-colors">إدارة اللجان</h3>
+                <p class="text-[11px] text-muted-foreground font-medium">إنشاء وتوزيع اللجان الفرعية وتسكين رؤساء اللجان والمشرفين</p>
             </div>
-            <i class="fas fa-chevron-left text-slate-300 group-hover:text-cyan-500 transition-all duration-300 transform group-hover:-translate-x-1"></i>
+            <i class="fas fa-chevron-left text-muted-foreground/50 group-hover:text-chart-2 transition-all duration-300 transform group-hover:-translate-x-1"></i>
         </div>
     </a>
 
     <!-- Reports -->
-    <a asp-controller="Admin" asp-action="GlobalReports" class="ant-card group cursor-pointer hover:border-emerald-300/80 transition-all duration-300">
+    <a asp-controller="Admin" asp-action="GlobalReports" class="ant-card group cursor-pointer hover:border-emerald-500/50 transition-all duration-300">
         <div class="ant-card-body flex items-center gap-5">
-            <div class="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
-                <i class="fas fa-chart-bar text-xl"></i>
+            <div class="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform duration-300">
+                <i class="fas fa-chart-bar text-base"></i>
             </div>
             <div class="flex-1">
-                <h3 class="text-base font-bold text-slate-800 mb-0.5 group-hover:text-emerald-600 transition-colors">التقارير الشاملة</h3>
-                <p class="text-xs text-slate-400 font-medium">متابعة إحصائيات التصويت وعرض وطباعة النتائج النهائية</p>
+                <h3 class="text-sm font-bold text-foreground mb-0.5 group-hover:text-emerald-600 transition-colors">التقارير الشاملة</h3>
+                <p class="text-[11px] text-muted-foreground font-medium">متابعة إحصائيات التصويت وعرض وطباعة النتائج النهائية</p>
             </div>
-            <i class="fas fa-chevron-left text-slate-300 group-hover:text-emerald-500 transition-all duration-300 transform group-hover:-translate-x-1"></i>
+            <i class="fas fa-chevron-left text-muted-foreground/50 group-hover:text-emerald-600 transition-all duration-300 transform group-hover:-translate-x-1"></i>
         </div>
     </a>
 </div>
 
 <!-- Secondary Actions -->
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-    <a asp-controller="Supervisors" asp-action="Index" class="ant-card group cursor-pointer hover:border-amber-300/80 transition-all duration-300">
+    <a asp-controller="Supervisors" asp-action="Index" class="ant-card group cursor-pointer hover:border-amber-500/50 transition-all duration-300">
         <div class="ant-card-body flex items-center gap-5">
-            <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
-                <i class="fas fa-user-shield text-base"></i>
+            <div class="w-10 h-10 rounded-lg bg-amber-500/10 text-amber-600 border border-amber-500/20 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform duration-300">
+                <i class="fas fa-user-shield text-sm"></i>
             </div>
             <div class="flex-1">
-                <h3 class="text-sm font-bold text-slate-800 mb-0.5 group-hover:text-amber-600 transition-colors">إدارة المشرفين ورؤساء اللجان</h3>
-                <p class="text-[11px] text-slate-400 font-medium">تسجيل حسابات المشرفين القضائيين والمساعدين وإدارتها</p>
+                <h3 class="text-xs font-bold text-foreground mb-0.5 group-hover:text-amber-600 transition-colors">إدارة المشرفين ورؤساء اللجان</h3>
+                <p class="text-[10px] text-muted-foreground font-medium">تسجيل حسابات المشرفين القضائيين والمساعدين وإدارتها</p>
             </div>
-            <i class="fas fa-chevron-left text-slate-300 group-hover:text-amber-500 transition-all duration-300 transform group-hover:-translate-x-1"></i>
+            <i class="fas fa-chevron-left text-muted-foreground/50 group-hover:text-amber-500 transition-all duration-300 transform group-hover:-translate-x-1"></i>
         </div>
     </a>
 
-    <a asp-controller="Committees" asp-action="VotersList" class="ant-card group cursor-pointer hover:border-purple-300/80 transition-all duration-300">
+    <a asp-controller="Committees" asp-action="VotersList" class="ant-card group cursor-pointer hover:border-purple-500/50 transition-all duration-300">
         <div class="ant-card-body flex items-center gap-5">
-            <div class="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
-                <i class="fas fa-clipboard-list text-base"></i>
+            <div class="w-10 h-10 rounded-lg bg-purple-500/10 text-purple-600 border border-purple-500/20 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform duration-300">
+                <i class="fas fa-clipboard-list text-sm"></i>
             </div>
             <div class="flex-1">
-                <h3 class="text-sm font-bold text-slate-800 mb-0.5 group-hover:text-purple-600 transition-colors">كشوف وجداول الناخبين</h3>
-                <p class="text-[11px] text-slate-400 font-medium">البحث في جداول الناخبين ومراجعة وتصدير بيانات الحضور والتصويت</p>
+                <h3 class="text-xs font-bold text-foreground mb-0.5 group-hover:text-purple-600 transition-colors">كشوف وجداول الناخبين</h3>
+                <p class="text-[10px] text-muted-foreground font-medium">البحث في جداول الناخبين ومراجعة وتصدير بيانات الحضور والتصويت</p>
             </div>
-            <i class="fas fa-chevron-left text-slate-300 group-hover:text-purple-500 transition-all duration-300 transform group-hover:-translate-x-1"></i>
+            <i class="fas fa-chevron-left text-muted-foreground/50 group-hover:text-purple-500 transition-all duration-300 transform group-hover:-translate-x-1"></i>
         </div>
     </a>
+</div>
+
+<!-- Live Tally & Audit Section -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-5 mt-8">
+    <!-- Audit Log Card (7 cols) -->
+    <div class="xl:col-span-7 ant-card flex flex-col">
+        <div class="ant-card-head border-b border-border flex items-center justify-between !py-3">
+            <h3 class="ant-card-head-title flex items-center gap-2 text-sm font-bold text-foreground">
+                <i class="fas fa-history text-muted-foreground text-sm"></i>
+                سجل الاقتراع والتدقيق المباشر (Audit Log)
+            </h3>
+            <span class="text-[10px] text-foreground font-bold bg-muted px-2.5 py-1 rounded-full border border-border flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                مزامنة حية
+            </span>
+        </div>
+        <div class="ant-card-body !p-0 overflow-x-auto flex-1">
+            <table class="ant-table">
+                <thead>
+                    <tr class="bg-muted/30 border-b border-border">
+                        <th class="text-right py-3 px-4 text-xs font-bold text-muted-foreground">الناخب</th>
+                        <th class="text-right py-3 px-4 text-xs font-bold text-muted-foreground">معرف الهوية</th>
+                        <th class="text-right py-3 px-4 text-xs font-bold text-muted-foreground">اللجنة</th>
+                        <th class="text-left py-3 px-4 text-xs font-bold text-muted-foreground">الحالة</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.RecentVoters != null && Model.RecentVoters.Any())
+                    {
+                        foreach (var voter in Model.RecentVoters)
+                        {
+                            <tr class="border-b border-border/40 hover:bg-muted/20 transition-colors">
+                                <td class="font-bold text-foreground text-xs py-3 px-4">@voter.VoterName</td>
+                                <td class="font-mono text-[11px] text-muted-foreground py-3 px-4 font-numerals">@voter.NationalId</td>
+                                <td class="text-muted-foreground text-xs py-3 px-4">@voter.CommitteeName</td>
+                                <td class="text-left py-3 px-4">
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-primary/10 text-primary border border-primary/20">
+                                        <i class="fas fa-check-double text-[8px] ml-1"></i>
+                                        تم التدقيق والتصويت
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="4">
+                                <div class="py-12 text-center text-muted-foreground">
+                                    <i class="fas fa-info-circle text-2xl mb-2 block text-muted-foreground/40"></i>
+                                    <span class="text-xs font-bold">لا توجد أي عمليات تصويت مسجلة في كشف الاقتراع حالياً</span>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Terminals & Progress Card (5 cols) -->
+    <div class="xl:col-span-5 flex flex-col gap-5">
+        <!-- Turnout Card -->
+        <div class="ant-card relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-1.5 h-full bg-primary"></div>
+            <div class="ant-card-body">
+                <span class="text-[10px] font-black text-muted-foreground uppercase tracking-wider block mb-2">إجمالي النصاب القانوني والحضور</span>
+                @{
+                    double turnoutPercent = 0;
+                    int totalVotesCastAll = Model.Committees?.Sum(c => c.VotesCast) ?? 0;
+                    if (Model.TotalVoters > 0)
+                    {
+                        turnoutPercent = Math.Round((double)totalVotesCastAll / Model.TotalVoters * 100, 1);
+                    }
+                }
+                <div class="flex justify-between items-end mb-2.5">
+                    <span class="text-4xl font-black text-foreground font-numerals tracking-tight">
+                        @turnoutPercent%
+                    </span>
+                    <span class="text-xs text-muted-foreground font-bold font-numerals">الحضور: @totalVotesCastAll / @Model.TotalVoters</span>
+                </div>
+                <div class="w-full h-2.5 bg-muted rounded-full overflow-hidden border border-border">
+                    <div class="h-full bg-primary rounded-full transition-all duration-500" style="width: @(turnoutPercent)%"></div>
+                </div>
+                @if (turnoutPercent >= 50.0)
+                {
+                    <div class="mt-3 flex items-center gap-1.5 text-[10px] text-emerald-600 font-bold">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        اكتمل النصاب القانوني للجمعية
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Terminals Status List -->
+        <div class="ant-card flex-grow flex flex-col">
+            <div class="ant-card-head border-b border-border flex items-center justify-between !py-3">
+                <h3 class="ant-card-head-title flex items-center gap-2 text-sm font-bold text-foreground">
+                    <i class="fas fa-desktop text-muted-foreground text-sm"></i>
+                    حالة أجهزة الاقتراع (اللجان الفرعية)
+                </h3>
+            </div>
+            <div class="ant-card-body !p-0 flex-1 overflow-y-auto">
+                <div class="divide-y divide-border/40">
+                    @if (Model.Committees != null && Model.Committees.Any())
+                    {
+                        foreach (var term in Model.Committees)
+                        {
+                            double termTurnout = 0;
+                            if (term.TotalVoters > 0)
+                            {
+                                termTurnout = Math.Round((double)term.VotesCast / term.TotalVoters * 100, 1);
+                            }
+                            <div class="p-3.5 flex items-center justify-between hover:bg-muted/10 transition-colors">
+                                <div class="flex items-center gap-3">
+                                    <span class="relative flex h-2 w-2">
+                                        @if (term.Status == "Open")
+                                        {
+                                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                                        }
+                                        else
+                                        {
+                                            <span class="relative inline-flex rounded-full h-2 w-2 bg-muted-foreground/40"></span>
+                                        }
+                                    </span>
+                                    <div>
+                                        <h4 class="text-xs font-bold text-foreground leading-tight">@term.Name</h4>
+                                        <p class="text-[10px] text-muted-foreground mt-1 font-medium">@term.ElectionName</p>
+                                    </div>
+                                </div>
+                                <div class="text-left flex flex-col items-end">
+                                    @if (term.Status == "Open")
+                                    {
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">نشط</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold bg-muted text-muted-foreground border border-border">مغلق</span>
+                                    }
+                                    <span class="text-[10px] text-muted-foreground mt-1 font-bold font-numerals">@termTurnout% (@term.VotesCast/@term.TotalVoters)</span>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="p-8 text-center text-muted-foreground flex-1 flex flex-col items-center justify-center">
+                            <i class="fas fa-desktop text-xl mb-2 text-muted-foreground/30"></i>
+                            <span class="text-xs font-bold">لا توجد لجان مسجلة</span>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

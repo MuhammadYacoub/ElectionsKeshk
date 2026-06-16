@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', function () {
             duration: duration || 2,
             ease: 'power2.out',
             onUpdate: function () {
-                element.textContent = Math.round(obj.val).toLocaleString('ar-EG');
+                element.textContent = Math.round(obj.val).toLocaleString('en-US');
             }
         });
     };
